@@ -1,10 +1,10 @@
-include ../../config.mk
+include ../config.mk
 
 runtime_%.ml: %.c
 	perl parseC.pl $*.c > $@
 
 %.c:
-	tar --strip-components=2 -zxf ../../$(OCAMLTAR) ocaml-$(OCAMLVERSION)/byterun/$*.c
+	tar --strip-components=2 -zxf ../$(OCAMLTAR) ocaml-$(OCAMLVERSION)/byterun/$*.c
 
 other_unix.ml: otherlibs/unix
 other_nums.ml: otherlibs/num
@@ -14,7 +14,7 @@ other_graphics.ml: otherlibs/graph
 other_dbm.ml: otherlibs/dbm
 other_bigarray.ml: otherlibs/bigarray
 
-otherlibs/%: ../../$(OCAMLTAR)
+otherlibs/%: ../$(OCAMLTAR)
 	tar --strip-components=1 -zxf $< ocaml-$(OCAMLVERSION)/otherlibs/$*
 
 other_%.ml:
