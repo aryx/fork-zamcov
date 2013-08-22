@@ -1,0 +1,12 @@
+
+*.cm*
+
+*.annot
+.depend
+
+*.so
+*.a
+*.o
+/zamcov-extract
+/zamcov-run
+/zamcov-run.byte
