@@ -1,0 +1,5 @@
+re_partial_match
+re_replacement_text
+re_search_backward
+re_search_forward
+re_string_match

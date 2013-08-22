@@ -1,0 +1,10 @@
+caml_thread_exit
+caml_thread_id
+caml_thread_initialize
+caml_thread_join
+caml_thread_new
+caml_thread_self
+caml_thread_sigmask
+caml_thread_uncaught_exception
+caml_thread_yield
+caml_wait_signal

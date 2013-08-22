@@ -1,0 +1,8 @@
+caml_dbm_close
+caml_dbm_delete
+caml_dbm_fetch
+caml_dbm_firstkey
+caml_dbm_insert
+caml_dbm_nextkey
+caml_dbm_open
+caml_dbm_replace
