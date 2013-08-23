@@ -1,0 +1,12 @@
+modifs:
+ - extract just byterun/ from zamcov-1.0
+ - move things around, put config.mk there
+ - try with ocaml 4.00.1
+
+ - add -debug to zamcov-extract
+ - modified printDebug.ml, focus on tracing C calls and functions calls
+
+
+bugs:
+ - patched parseM.pl to not condition the adding to Fffi.init_list
+   whether the section is used, because it's incorrect
