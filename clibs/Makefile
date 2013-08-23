@@ -21,7 +21,7 @@ other_%.ml:
 	perl parseML.pl $(notdir $<) $* $</*.ml > $@
 
 clean:
-	rm -rf *.cm* *.o
+	rm -rf *.cm* *.o *.annot
 
 distclean:
 	rm -rf runtime_* other_* *.c otherlibs

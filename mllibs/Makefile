@@ -1,2 +1,2 @@
 clean:
-	rm -f *.cm* *.o
+	rm -f *.cm* *.o *.annot

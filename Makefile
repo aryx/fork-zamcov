@@ -43,7 +43,7 @@ clibs/%.ml:
 clean:
 	cd clibs && make clean
 	cd mllibs && make clean
-	rm -f *.a *.cm* *.bc *.nc *.o
+	rm -f *.a *.cm* *.bc *.nc *.o *.annot
 
 distclean: clean
 	rm -f zamcov-run.byte zamcov-run zamcov-extract
