@@ -7,6 +7,8 @@ caml_array_get
 caml_array_get_addr
 caml_array_get_float
 caml_array_set
+caml_array_sub
+caml_array_concat
 caml_array_set_addr
 caml_array_set_float
 caml_array_unsafe_get
@@ -67,6 +69,7 @@ caml_get_section_table
 caml_greaterequal
 caml_greaterthan
 caml_gt_float
+caml_hash
 caml_hash_univ_param
 caml_input_value
 caml_input_value_from_string
