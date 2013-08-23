@@ -1,5 +1,7 @@
 include ../config.mk
 
+.SUFFIXES: .ml .mli .cmo .cmi .cmx .cmt
+
 runtime_%.ml: %.c
 	perl parseC.pl $*.c > $@
 
