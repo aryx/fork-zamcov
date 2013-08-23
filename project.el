@@ -19,8 +19,9 @@
    (join-string 
     (list 
      " "
-     (case 0
+     (case 1
        (0 "/home/pad/github/zamcov/tests/foo")
+       (1 "/home/pad/pfff/pfff")
        )
      )
     )
