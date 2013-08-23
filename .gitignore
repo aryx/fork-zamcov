@@ -11,3 +11,4 @@
 /zamcov-run
 /zamcov-run.byte
 /tests/foo
+/tests/use_nat

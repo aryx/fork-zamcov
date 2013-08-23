@@ -1,7 +1,7 @@
 let x = 2
 
-let f x = x +2
+let this_is_a_long_function_name x = x + 2
 
 let _ =
-  print_int (f 2);
+  print_int (this_is_a_long_function_name 2);
   ()
