@@ -58,6 +58,5 @@ foreach $name (keys %funcs) {
   }
 }
 print "\n\nlet init dlls_section =\n";
-#print "  if List.exists ((=) \"dll$mname\") dlls_section then prims ()\n;;\n";
-print "  prims ()\n;;\n";
+print "  if List.exists ((=) \"dll$mname\") dlls_section then prims ()\n;;\n";
 print "Ffi.init_list := init::!Ffi.init_list\n";
