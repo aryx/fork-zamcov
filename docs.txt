@@ -1,0 +1,44 @@
+-*- org -*-
+
+* Bytecode format
+
+For the bytecode format, we basically need to reverse engineer what
+was done in: 
+ - bytecomp/emitcode.ml (cmo)
+ - bytecomp/bytelibrarian.ml (cma)
+ - bytecomp/bytelink.ml (final executable)
+
+See bytecomp/cmo_format.mli
+
+* FFI
+
+How to call C code? We can't interpret C code ...
+The C code needs to be linked with zamcov-run so we just
+need to find the address of this code and jump there.
+How to jump there? We can abuse the 'external' mechanism of 
+ocaml itself for that :)
+
+But then this C code assumes the ocaml C value runtime
+representation, not the special one we use in value.ml.
+So we need to convert back and forth, hence the Fffi.wrap
+to go from Value.value to Obj.t (Ffi.obj_of_value), and then get the
+result back in a Value.value (Utils.value_of_obj)
+
+** What is clibs for?
+
+** What is mllibs for?
+Because some functions in the stdlib do weird things around
+values and we need to imitate that because we have our
+own value representation?
+
+* interpreter
+
+** value
+Value.value vs Obj.t
+
+** GC?
+How it works? We just use the ocaml GC itself that will work on Value.value.
+Just like a lisp interpreter written in LISP just use implicitly
+the Lisp GC.
+
+There should never be calls to the C functions from the GC??

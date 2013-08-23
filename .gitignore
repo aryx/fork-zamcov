@@ -13,4 +13,5 @@
 /tests/foo
 /tests/use_nat
 /ocaml-3.12.1.tar.gz
-/ocaml-4.00.1.tar.gz
+
+clibs/otherlibs/*
