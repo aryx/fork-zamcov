@@ -15,7 +15,7 @@ OCAMLC=ocamlc -bin-annot -annot
 THREAD=-thread
 
 # list of libraries to link in zamcov-run interpreter
-CLIBS=unix nums str threads graphics bigarray
+CLIBS=nums unix str threads graphics bigarray
 
 # list of runtime elements to link in zamcov-run interpreter
 NATIVE_RUNTIME= \
