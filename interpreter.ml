@@ -6,7 +6,6 @@
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 
-
 exception EXIT_ON_STOP
 exception Exception_raised
 
