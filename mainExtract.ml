@@ -15,6 +15,7 @@ let prim = ref false
 let dlls = ref false
 let dlpt = ref false
 let crcs = ref false
+let debug = ref false
 let nb_instr = ref 0
 let trace_name = ref ""
 let exec = ref ""
@@ -47,6 +48,9 @@ let print_dlpt data =
 let print_crcs data =
   List.iter (function (s, d) -> print_endline (s^" "^Digest.to_hex d)) data.Bytecode_loader.crcs_section
 
+let print_debug data =
+  print_endline data.Bytecode_loader.debug_section
+
 let _ =
   Arg.parse
     [
@@ -55,6 +59,7 @@ let _ =
       ("-dlls", Arg.Set dlls, "print DLLS");
       ("-dlpt", Arg.Set dlpt, "print DLPT");
       ("-crcs", Arg.Set crcs, "print CRCS");
+      ("-debug", Arg.Set crcs, "print DEBUG");
       ("--", Arg.Rest init_exec, "no options follow")
     ]
     init_exec
@@ -66,4 +71,5 @@ let _ =
   if !dlls then print_dlls data;
   if !dlpt then print_dlpt data;
   if !crcs then print_crcs data;
+  if !debug then print_debug data;
 ;;
