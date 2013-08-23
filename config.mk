@@ -8,8 +8,8 @@ OCAMLVERSION=4.00.1
 OCAMLTAR=ocaml-$(OCAMLVERSION).tar.gz
 
 # O'Caml compilers to use
-OCAMLOPT=ocamlopt
-OCAMLC=ocamlc
+OCAMLOPT=ocamlopt -bin-annot -annot
+OCAMLC=ocamlc -bin-annot -annot
 
 # thread flavor: "" for none, -thread, or -vmthread
 THREAD=-thread
