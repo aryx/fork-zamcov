@@ -1,4 +1,4 @@
-include ../config.mk
+include ../Makefile.config
 
 .SUFFIXES: .ml .mli .cmo .cmi .cmx .cmt
 
