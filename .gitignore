@@ -16,3 +16,5 @@
 
 clibs/otherlibs/*
 /ocaml-4.00.1.tar.gz
+/graph_code.marshall
+/graph_code.marshall.opti
