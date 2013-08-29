@@ -1,10 +1,11 @@
 modifs:
  - extract just byterun/ from zamcov-1.0
- - move things around, put config.mk there
+ - copied also config.mk, adjusted paths in Makefiles
  - try with ocaml 4.00.1
 
  - add -debug to zamcov-extract
  - modified printDebug.ml, focus on tracing C calls and functions calls
+ - added .mli, moved more things around
 
 
 bugs:
