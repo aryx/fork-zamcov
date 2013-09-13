@@ -49,6 +49,7 @@ let main_action file args =
   (* the PRIM section of the exe *)
   let primitive_section = data.Bytecode_loader.primitive_section in 
 
+  pr2 (spf "init = %d" (List.length !Ffi.init_list));
   (* initialisation of C primitives using the information of the DLLS section
    * of the exe *)
   Ffi.init data.Bytecode_loader.dlls_section;
