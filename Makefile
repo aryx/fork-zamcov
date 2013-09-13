@@ -9,8 +9,9 @@
 ##############################################################################
 TOP=$(shell pwd)
 
-SRC=common.ml \
- instructions.ml value.ml vm.ml utils.ml \
+SRC= instructions.ml value.ml \
+ vm.ml \
+ utils.ml \
  bytecode_loader.ml \
  interpreter.ml \
  ffi.ml \
@@ -33,9 +34,9 @@ PROGS=zamcov
 SYSLIBS=nums.cma bigarray.cma str.cma unix.cma
 #SYSLIBS+=$(OCAMLCOMPILERCMA)
 
-LIBS=
+LIBS= commons/lib.cma
 
-MAKESUBDIRS=
+MAKESUBDIRS=commons
 #clibs mllibs
 
 INCLUDEDIRS=$(MAKESUBDIRS)
