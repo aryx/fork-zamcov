@@ -8,7 +8,7 @@ was done in:
  - bytecomp/bytelibrarian.ml (cma)
  - bytecomp/bytelink.ml (final executable)
 
-See bytecomp/cmo_format.mli
+See also bytecomp/cmo_format.mli
 
 * FFI
 
@@ -20,16 +20,20 @@ ocaml itself for that :)
 
 But then this C code assumes the ocaml C value runtime
 representation, not the special one we use in value.ml.
-So we need to convert back and forth, hence the Fffi.wrap
+So we need to convert back and forth, hence the Ffi.wrap
 to go from Value.value to Obj.t (Ffi.obj_of_value), and then get the
 result back in a Value.value (Utils.value_of_obj)
 
 ** What is clibs for?
+Just to create all the external declarations from the ocaml
+standard libraries and otherlibs and the redirect and wrappers
+so that they can work on Value.
 
 ** What is mllibs for?
-Because some functions in the stdlib do weird things around
-values and we need to imitate that because we have our
-own value representation?
+
+Because some functions in the stdlib do weird things around values
+(compare, callback, obj) and we need to imitate that because we have
+our own value representation.
 
 * interpreter
 

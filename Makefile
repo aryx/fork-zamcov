@@ -30,9 +30,15 @@ PROGS=zamcov zamcov_test
 SYSLIBS=nums.cma bigarray.cma str.cma unix.cma
 #SYSLIBS+=$(OCAMLCOMPILERCMA)
 
+# The order of clibs and mllibs below is very important
+# mllibs must come last so that it's Fffi.init_list statements
+# come last and so overwrite the naive wrappers in clibs
+# (e.g. caml_register_named_value must not be redefined in mllibs
+# so that we do not call the default one provided by ocaml that
+# works on the Obj format, not the Value format)
 LIBS= commons/lib.cma \
   interpreter/lib.cma \
-  mllibs/lib.cma clibs/lib.cma
+  clibs/lib.cma mllibs/lib.cma 
 
 MAKESUBDIRS=commons interpreter mllibs clibs
 
