@@ -1,36 +1,23 @@
 (***********************************************************************)
 (*                              Project Couverture                     *)
 (*                                                                     *)
-(* file: mainRun.ml                                                    *)
 (* authors: Adrien Jonquet, Philippe Wang, Alexis Darrasse             *)
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
-open Common
 
-(*****************************************************************************)
-(* Purpose *)
-(*****************************************************************************)
-(*
- * The main loop of execution.
- * - reading of the different section (CODE, DATA, DBUG...) of the bytecode
- * executable.
- * - Interpretation of all the instructions of the CODE section
+(* We should limit the use of Arg. because we must not interpret the
+ * command line arguments that we actually want to pass to the 
+ * executable under tracing.
  *)
+let cmd_args = []
 
-(*****************************************************************************)
-(* Flags *)
-(*****************************************************************************)
-
-let verbose = ref false
-
-(* action mode *)
-let action = ref ""
-
-(*****************************************************************************)
-(* Main action *)
-(*****************************************************************************)
-
-let main_action s =
+(*
+  The main loop of execution.
+  - reading of the different section (CODE, DATA, DBUG...) of the bytecode
+  executable.
+  - Interpretation of all the instructions of the CODE section
+*)
+let init_exec s =
   if not (Sys.file_exists s) then Utils.fatal_error ("cannot find file "^s);
   Vm.exec := s;
   Vm.args := Array.sub Sys.argv !Arg.current (Array.length Sys.argv - !Arg.current);
@@ -56,83 +43,6 @@ let main_action s =
     Plugin.finalise ();
     exit 0
 
-(*****************************************************************************)
-(* Extra actions *)
-(*****************************************************************************)
-
-(*****************************************************************************)
-(* The options *)
-(*****************************************************************************)
-
-let all_actions () = 
- []
-
-let options () = 
-  [
-    "-verbose", Arg.Set verbose, 
-    " ";
-  ] ++
-  (Plugin.cmd_args ()) ++
-  Common.options_of_actions action (all_actions()) ++
-  [
-  "-version",   Arg.Unit (fun () -> 
-    pr2 (spf "zamcov version: %d" 1);
-    exit 0;
-  ), 
-    "  guess what";
-
-  (* this can not be factorized in Common *)
-  "-date",   Arg.Unit (fun () -> 
-    pr2 "version: $Date: 2013/09/13 00:44:57 $";
-    raise (Common.UnixExit 0)
-    ), 
-  "   guess what";
-  ] ++
-  []
-
-(*****************************************************************************)
-(* Main entry point *)
-(*****************************************************************************)
-
-let main () = 
-  let usage_msg = 
-    "Usage: " ^ Filename.basename Sys.argv.(0) ^ 
-      " [options] <ocaml bytecode program> " ^ "\n" ^ "Options are:"
-  in
-  (* does side effect on many global flags *)
-  let args = Common.parse_options (options()) usage_msg Sys.argv in
-
-  (* must be done after Arg.parse, because Common.profile is set by it *)
-  Common.profile_code "Main total" (fun () -> 
-
-    (match args with
-   
-    (* --------------------------------------------------------- *)
-    (* actions, useful to debug subpart *)
-    (* --------------------------------------------------------- *)
-    | xs when List.mem !action (Common.action_list (all_actions())) -> 
-        Common.do_action !action xs (all_actions())
-
-    | _ when not (Common.null_string !action) -> 
-        failwith ("unrecognized action or wrong params: " ^ !action)
-
-    (* --------------------------------------------------------- *)
-    (* main entry *)
-    (* --------------------------------------------------------- *)
-    | [x] -> 
-        main_action x
-
-    (* --------------------------------------------------------- *)
-    (* empty entry *)
-    (* --------------------------------------------------------- *)
-    | _ -> 
-        Common.usage usage_msg (options()); 
-        failwith "too few or too many arguments"
-    )
-  )
-
-(*****************************************************************************)
 let _ =
-  Common.main_boilerplate (fun () -> 
-      main ();
-  )
+  Arg.parse (cmd_args @ Plugin.cmd_args ()) init_exec (Sys.argv.(0)^" [options] executable args");
+  Arg.usage (cmd_args @ Plugin.cmd_args ()) (Sys.argv.(0)^" [options] executable args")

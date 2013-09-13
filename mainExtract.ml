@@ -1,12 +1,4 @@
-(***********************************************************************)
-(*                              Project Couverture                     *)
-(*                                                                     *)
-(* file: mainExtract.ml                                                *)
-(* authors: Adrien Jonquet, Philippe Wang, Alexis Darrasse             *)
-(* licence: CeCIL-B                                                    *)
-(***********************************************************************)
 (*
-  Extraction of headers from the bytecode, for primitive handling
 *)
 (***********************************************************************)
 

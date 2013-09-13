@@ -18,7 +18,7 @@ TARGET=zamcov
 #------------------------------------------------------------------------------
 # Program related variables
 #------------------------------------------------------------------------------
-PROGS=zamcov
+PROGS=zamcov zamcov_test
 
 #------------------------------------------------------------------------------
 #package dependencies
@@ -91,6 +91,17 @@ distclean:: clean
 	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i $@; done
 	rm -f .depend
 #	rm -f Makefile.config
+
+#------------------------------------------------------------------------------
+# zamcov_test
+#------------------------------------------------------------------------------
+
+zamcov_test: $(LIBS) $(OBJS) main_test.cmo
+	$(OCAMLC) $(BYTECODE_STATIC) -o $@ $(SYSLIBS) $^
+zamcov_test.opt: $(LIBS:.cma=.cmxa) $(OBJS:.cmo=.cmx) main_test.cmx
+	$(OCAMLOPT) $(STATIC) -o $@ $(SYSLIBS:.cma=.cmxa)  $^
+clean::
+	rm -f zamcov_test zamcov_test.opt
 
 ##############################################################################
 # TODO: old
