@@ -1,7 +1,7 @@
 all: foo use_nat
 
 OCAMLC=ocamlc -g
-ZAM=../zamcov-run
+ZAM=../zamcov
 
 foo: foo.ml
 	$(OCAMLC) -custom -o foo foo.ml
@@ -11,6 +11,9 @@ use_nat: use_nat.ml
 
 test:
 	$(ZAM) foo
+
+test2:
+	../zamcov_test foo
 
 clean:
 	rm -f *.cm*
