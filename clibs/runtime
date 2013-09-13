@@ -255,3 +255,4 @@ caml_weak_create
 caml_weak_get
 caml_weak_get_copy
 caml_weak_set
+caml_array_blit

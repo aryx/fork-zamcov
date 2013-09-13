@@ -7,3 +7,4 @@ let main () =
   print_int (bar 5);
   ()
 
+let _ = main ()

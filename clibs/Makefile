@@ -52,7 +52,7 @@ INCLUDEDIRS=$(TOP)/interpreter
 # to prevent the automatic deletion done by make
 .SECONDARY: $(SRC2)
 
-SRC=$(SRC1) $(SRC2)
+SRC=$(SRC1) $(SRC2) extra.ml
 
 ##############################################################################
 # Generic variables

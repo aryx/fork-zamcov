@@ -12,7 +12,6 @@ caml_ba_layout
 caml_ba_map_file
 caml_ba_num_dims
 caml_ba_reshape
-caml_ba_set_1
 caml_ba_set_2
 caml_ba_set_3
 caml_ba_set_generic
