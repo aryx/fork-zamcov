@@ -25,7 +25,7 @@ all:: $(TARGET).cma
 all.opt:: $(TARGET).cmxa
 
 $(TARGET).cma: $(OBJS)
-	$(OCAMLC) -a -o $(TARGET).cma $(OBJS)
+	$(OCAMLC) -a -o $@ $^
 
-$(TARGET).cmxa: $(OPTOBJS) $(LIBS:.cma=.cmxa)
-	$(OCAMLOPT) -a -o $(TARGET).cmxa $(OPTOBJS)
+$(TARGET).cmxa: $(OBJS:.cmo=.cmx) $(LIBS:.cma=.cmxa)
+	$(OCAMLOPT) -a -o $@ $^

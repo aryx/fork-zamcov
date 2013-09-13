@@ -65,7 +65,7 @@ SRC=$(SRC1) $(SRC2)
 ##############################################################################
 
 # need that otherwise get some 'tar  ... all.c'
-.PHONY:: all
+.PHONY:: all all.opt
 
 all:: $(TARGET).cma
 all.opt:: $(TARGET).cmxa
