@@ -11,7 +11,7 @@ open Ffi
 let caml_weak_set vm arg1 arg2 arg3 = match (arg1, arg2) with
   | (Value.Block tbl, Value.Int idx) -> (match arg3 with
     | Value.Int 0 -> Weak.set (Obj.obj (Utils.unbox_custom tbl.Value.data.(0))) idx None
-    | Value.Block {Value.data = [|x|]} ->
+    | Value.Block {Value.data = [|x|]; _} ->
         Weak.set (Obj.obj (Utils.unbox_custom tbl.Value.data.(0))) idx (Some x)
     | _ -> ccall_failwith "error caml_weak_set");
     Value.Int 0
