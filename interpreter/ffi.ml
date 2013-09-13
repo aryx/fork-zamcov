@@ -65,7 +65,9 @@ let replacen = Hashtbl.add tbln
 let init_list = ref ([]:(string list -> unit) list)
 
 let init dlls_section =
-  List.iter (fun f -> f dlls_section) !init_list
+  List.iter (fun f -> 
+    f dlls_section
+  ) !init_list
 
 let load primitive_section =
   let n = Array.length primitive_section in
