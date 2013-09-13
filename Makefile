@@ -31,10 +31,10 @@ SYSLIBS=nums.cma bigarray.cma str.cma unix.cma
 #SYSLIBS+=$(OCAMLCOMPILERCMA)
 
 LIBS= commons/lib.cma \
-  interpreter/lib.cma
+  interpreter/lib.cma \
+  mllibs/lib.cma clibs/lib.cma
 
-MAKESUBDIRS=commons interpreter
-#clibs mllibs
+MAKESUBDIRS=commons interpreter mllibs clibs
 
 INCLUDEDIRS=$(MAKESUBDIRS)
 
@@ -102,51 +102,6 @@ zamcov_test.opt: $(LIBS:.cma=.cmxa) $(OBJS:.cmo=.cmx) main_test.cmx
 	$(OCAMLOPT) $(STATIC) -o $@ $(SYSLIBS:.cma=.cmxa)  $^
 clean::
 	rm -f zamcov_test zamcov_test.opt
-
-##############################################################################
-# TODO: old
-##############################################################################
-
-#PLUGINS=Debug
-#
-#all:zamcov-run zamcov-run.byte zamcov-extract
-#
-#zamcov-extract: instructions.cmo bytecode_loader.cmo mainExtract.cmo
-#	$(OCAMLC) -I common -o "$@" $^
-#
-#INTERPRETER_DEP=common instructions value vm utils ffi interpreter
-#interpreter.cmxa: $(addsuffix .cmx,$(INTERPRETER_DEP))
-#interpreter.cma: $(addsuffix .cmo,$(INTERPRETER_DEP))
-#
-#zamcov-run: interpreter.cmxa $(addsuffix .cmx,bytecode_loader \
-#            $(addprefix clibs/other_,$(CLIBS)) \
-#	    $(addprefix clibs/runtime_,$(NATIVE_RUNTIME)) \
-#	    $(addprefix mllibs/lib_,$(CLIBS)) \
-#	    $(addprefix mllibs/run_,$(BYTECODE_RUNTIME)) \
-#	    plugin $(addprefix plugin,$(PLUGINS)) mainRun)
-#	$(OCAMLOPT) $(THREAD) $(addsuffix .cmxa,$(CLIBS)) -o "$@" $^
-#
-#zamcov-run.byte: interpreter.cma $(addsuffix .cmo,bytecode_loader \
-#                 $(addprefix clibs/other_,$(CLIBS)) \
-#		 $(addprefix clibs/runtime_,$(BYTECODE_RUNTIME)) \
-#		 $(addprefix mllibs/lib_,$(CLIBS)) \
-#		 $(addprefix mllibs/run_,$(BYTECODE_RUNTIME)) \
-#		 plugin $(addprefix plugin,$(PLUGINS)) mainRun)
-#	$(OCAMLC) $(THREAD) -g $(addsuffix .cma,$(CLIBS)) -o "$@" $^
-#
-#
-#clibs/%.ml:
-#	cd clibs && make $*.ml
-#%.cmi:%.mli
-#	$(OCAMLC) -c "$<"
-#%.cmxa:
-#	$(OCAMLOPT) -a -o "$@" $^
-#%.cma:
-#	$(OCAMLC) -a -g -o "$@" $^
-#%.cmx:%.ml
-#	$(OCAMLOPT) -c "$<"
-#%.cmo:%.ml
-#	$(OCAMLC) -g -c "$<"
 
 ##############################################################################
 # Install

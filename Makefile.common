@@ -41,10 +41,10 @@ OCAMLDEP=ocamldep $(PP) $(INCLUDES)
 OCAMLMKTOP=ocamlmktop -g -custom $(INCLUDES) -thread
 
 # can also be set via 'make static'
-STATIC= #-ccopt -static
+#STATIC= #-ccopt -static
 
 # can also be unset via 'make purebytecode'
-BYTECODE_STATIC=-custom
+#BYTECODE_STATIC=-custom
 
 ##############################################################################
 # Top rules
@@ -102,6 +102,8 @@ doti:
 ##############################################################################
 
 .SUFFIXES: .ml .mli .cmo .cmi .cmx .cmt
+
+.PHONY:: clean distclean beforedepend depend
 
 .ml.cmo:
 	$(OCAMLC)  -c $<
