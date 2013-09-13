@@ -9,7 +9,11 @@
 ##############################################################################
 TOP=$(shell pwd)
 
-SRC=
+SRC=common.ml \
+ bytecode_loader.ml \
+ instructions.ml value.ml vm.ml utils.ml ffi.ml
+ interpreter.ml \
+ pluginDebug.ml
 
 TARGET=zamcov
 
@@ -28,7 +32,7 @@ SYSLIBS=
 
 LIBS=
 
-MAKESUBDIRS=
+MAKESUBDIRS= clibs mllibs
 
 INCLUDEDIRS=$(MAKESUBDIRS)
 
@@ -40,6 +44,40 @@ INCLUDEDIRS=$(MAKESUBDIRS)
 ##############################################################################
 # Top rules
 ##############################################################################
+
+.PHONY:: all all.opt opt top clean distclean
+
+all::
+	$(MAKE) rec 
+	$(MAKE) $(TARGET) 
+
+opt:
+	$(MAKE) rec.opt 
+	$(MAKE) $(OPTPROGS) 
+all.opt: opt
+top: $(TARGET).top
+
+
+rec:
+	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i all || exit 1; done 
+
+rec.opt:
+	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i all.opt || exit 1; done 
+
+zamcov:
+
+zamcov.opt:
+
+clean::
+	rm -f zamcov zamcov.opt zamcov.top
+clean::
+	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i clean; done 
+
+
+depend::
+	ocamldep *.ml > .depend
+	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i depend; done
+
 
 PLUGINS=Debug
 
@@ -82,20 +120,6 @@ clibs/%.ml:
 %.cmo:%.ml
 	$(OCAMLC) -g -c "$<"
 
-depend:
-	ocamldep *.ml > .depend
-
-clean:
-	cd clibs && make clean
-	cd mllibs && make clean
-	rm -f *.a *.cm* *.bc *.nc *.o *.annot
-
-distclean: clean
-	rm -f zamcov-run.byte zamcov-run zamcov-extract
-	cd clibs && make distclean
-
--include .depend
-
 ##############################################################################
 # Install
 ##############################################################################
@@ -109,4 +133,5 @@ distclean: clean
 ##############################################################################
 
 .PHONY:: graph
-# tags prolog  db layers visual   tests test
+
+# graph  tags prolog  db layers visual   tests test
