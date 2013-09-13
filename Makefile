@@ -68,9 +68,9 @@ rec:
 rec.opt:
 	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i all.opt || exit 1; done 
 
-zamcov: $(LIBS) $(OBJS) mainRun.cmo
+zamcov: $(LIBS) $(OBJS) main_zamcov.cmo
 	$(OCAMLC) $(BYTECODE_STATIC) -o $@ $(SYSLIBS) $^
-zamcov.opt: $(LIBS:.cma=.cmxa) $(OBJS:.cmo=.cmx) mainRun.cmx
+zamcov.opt: $(LIBS:.cma=.cmxa) $(OBJS:.cmo=.cmx) main_zamcov.cmx
 	$(OCAMLOPT) $(STATIC) -o $@ $(SYSLIBS:.cma=.cmxa)  $^
 zamcov.top: $(LIBS) $(OBJS) 
 	$(OCAMLMKTOP) -o $@ $(SYSLIBS) threads.cma $^
