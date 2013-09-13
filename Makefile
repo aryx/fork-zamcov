@@ -9,12 +9,8 @@
 ##############################################################################
 TOP=$(shell pwd)
 
-SRC= instructions.ml value.ml \
- vm.ml \
- utils.ml \
+SRC= \
  bytecode_loader.ml \
- interpreter.ml \
- ffi.ml \
  plugin.ml pluginDebug.ml
 
 TARGET=zamcov
@@ -34,9 +30,10 @@ PROGS=zamcov
 SYSLIBS=nums.cma bigarray.cma str.cma unix.cma
 #SYSLIBS+=$(OCAMLCOMPILERCMA)
 
-LIBS= commons/lib.cma
+LIBS= commons/lib.cma \
+  interpreter/lib.cma
 
-MAKESUBDIRS=commons
+MAKESUBDIRS=commons interpreter
 #clibs mllibs
 
 INCLUDEDIRS=$(MAKESUBDIRS)
