@@ -9,9 +9,9 @@ open Common
 (*****************************************************************************)
 (* Purpose *)
 (*****************************************************************************)
-
-(* todo: how avoid interpreter unknown flag and just pass them
- * in Vm.args?
+(* 
+ * todo: how avoid interpreter unknown flag and just pass them
+ * in Vm.args? Use Arg.Rest ?
  *)
 
 (*****************************************************************************)
@@ -29,51 +29,98 @@ let action = ref ""
 
 (*
  * The main loop of execution:
- * - reading of the different section (CODE, DATA, DBUG...) of the bytecode
- *   executable.
+ * - reading of the different sections (CODE, DATA, DEBUG...) of the bytecode
  * - interpretation of all the instructions of the CODE section
  *)
 let main_action file args =
   if not (Sys.file_exists file) 
   then Utils.fatal_error ("cannot find file "^file);
+
   Vm.exec := file;
   Vm.args := Array.of_list args;
-  (* load the OCaml bytecode exe *)
-  let data = Bytecode_loader.load_file !Vm.exec in (* TODO try .. with ? *)
-    (* the CODE section of the exe *)
-  let code_section = data.Bytecode_loader.code_section in
-    (* the DATA section of the exe converted in a value type *)
-  let data_section = Utils.value_of_obj data.Bytecode_loader.data_section in
-    (* the PRIM section of the exe *)
-  let primitive_section = data.Bytecode_loader.primitive_section in 
-    (* initialisation of C primitives using the information of the DLLS section of the exe *)
-    Ffi.init data.Bytecode_loader.dlls_section;
-    (* the size in byte of the bytecode *)
-    Plugin.init data;
-    (* initialisation of the virtual machine environment *)
-    Vm.run (Vm.init "main" code_section data_section Interpreter.execute_step
-                 (match !Plugin.plugin_list with
-                   | [] -> (fun _ -> fun _ -> ())
-                   | [p] -> p.Plugin.step
-                   | _ -> Plugin.step)
-                 (Ffi.load primitive_section));
-    Plugin.finalise ();
-    exit 0
 
+  (* load the OCaml bytecode exe *)
+  let data = Bytecode_loader.load_file file in
+
+  (* the CODE section of the exe *)
+  let code_section = data.Bytecode_loader.code_section in
+  (* the DATA section of the exe converted in a value type *)
+  let data_section = Utils.value_of_obj data.Bytecode_loader.data_section in
+  (* the PRIM section of the exe *)
+  let primitive_section = data.Bytecode_loader.primitive_section in 
+
+  (* initialisation of C primitives using the information of the DLLS section
+   * of the exe *)
+  Ffi.init data.Bytecode_loader.dlls_section;
+
+  (* the size in byte of the bytecode *)
+  Plugin.init data;
+
+  (* initialisation of the virtual machine environment *)
+  Vm.run (Vm.init "main" code_section data_section Interpreter.execute_step
+            (match !Plugin.plugin_list with
+            | [] -> (fun _ -> fun _ -> ())
+            | [p] -> p.Plugin.step
+            | _ -> Plugin.step
+            )
+            (Ffi.load primitive_section)
+  );
+
+  Plugin.finalise ();
+  exit 0
+    
 (*****************************************************************************)
 (* Extra actions *)
 (*****************************************************************************)
 
 (* Extraction of headers from the bytecode, for primitive handling.
- * Was in mainExtract.ml
+ * Was in mainExtract.ml.
  *)
+let extract section file =
+  if not (Sys.file_exists file) 
+  then failwith "executable file does not exist";
+
+  let data = Bytecode_loader.load_file file in
+  match section with
+  | "code" ->
+      let code_section = data.Bytecode_loader.code_section in
+      let primitive_section = data.Bytecode_loader.primitive_section in 
+      for i = 0 to Array.length code_section - 1 do
+        match code_section.(i) with
+        | Instructions.Param _ -> ()
+        | inst -> pr (spf "%d %s" i 
+                        (Instructions.string_of_instructions primitive_section
+                           inst))
+      done
+  | "prim" ->
+      let primitive_section = data.Bytecode_loader.primitive_section in 
+      for i = 0 to Array.length primitive_section - 1 do
+        print_endline primitive_section.(i)
+      done
+  | "dlls" ->
+      List.iter print_endline data.Bytecode_loader.dlls_section
+  | "dlpts" ->
+      List.iter print_endline data.Bytecode_loader.dlpt_section
+  | "crcs" ->
+      List.iter (function (s, d) -> 
+        print_endline (s^" "^Digest.to_hex d)) data.Bytecode_loader.crcs_section
+  | "debug" ->
+      print_endline data.Bytecode_loader.debug_section
+  | _ -> failwith (spf "section not recognized: %s" section)
+
+(* ---------------------------------------------------------------------- *)
+let extra_actions () = [
+  "-extract", " <section> <file>",
+  Common.mk_action_2_arg extract;
+]
 
 (*****************************************************************************)
 (* The options *)
 (*****************************************************************************)
 
 let all_actions () = 
- []
+  extra_actions () ++
+  []
 
 (* I use --- long version for the flag below to avoid conflicts
  * with the executable under test. We could also use the '--'

@@ -167,9 +167,12 @@ clean::
 .PHONY:: graph
 
 PFFF=~/pfff
-#  tags prolog  db layers visual   tests test
+#  tags prolog  db layers    tests test
+
 graph:
 	$(PFFF)/codegraph -lang cmt -build .
+visual:
+	$(PFFF)/codemap -filter pfff -no_legend .
 
 ##############################################################################
 # Pad specific rules
