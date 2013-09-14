@@ -46,3 +46,10 @@ Just like a lisp interpreter written in LISP just use implicitly
 the Lisp GC.
 
 There should never be calls to the C functions from the GC??
+
+* Link to source code
+
+How the original zamcov links bytecode to source code?
+Apparently they assume a .cmo.cover and so a patched version of
+the compiler. I don't want that, I think with compiler-libs we have
+enough info to find back the functions involved!
