@@ -135,15 +135,31 @@ let dump_cmo file =
   let code = String.make  codesize ' ' in
   Pervasives.really_input chan code 0 codesize;
   let instr = Instructions.parse_code_section code in
-  pr " ";
+  pr "";
   let primitive_section = [||] in
   for i = 0 to Array.length instr - 1 do
     match instr.(i) with
-    | Instructions.Param _ -> ()
     | inst -> pr (spf "%d %s" i 
                     (Instructions.string_of_instructions primitive_section
                        inst))
   done;
+
+  Pervasives.seek_in chan (12 + 4 + unit.Cmo.cu_codesize);
+  let (debug : Instruct.debug_event list) = Pervasives.input_value chan in
+  pr "";
+  debug +> List.iter (fun ev ->
+    pr (spf "%d %s %s %s" 
+          ev.Instruct.ev_pos
+          ev.Instruct.ev_module
+          (match ev.Instruct.ev_info with
+          | Instruct.Event_function -> "Event_function"
+          | Instruct.Event_return i -> spf "Event_return %d" i
+          | Instruct.Event_other -> "Event_other"
+          )
+          (let pos = ev.Instruct.ev_loc.Location.loc_start in
+           spf "%s %d" pos.Lexing.pos_fname pos.Lexing.pos_lnum)
+    );
+  );
 
   ()
   
