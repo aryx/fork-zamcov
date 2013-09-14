@@ -5,6 +5,7 @@
 (* authors: Adrien Jonquet, Philippe Wang, Alexis Darrasse             *)
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
+open Common
 
 (*****************************************************************************)
 (* Prelude *)
@@ -100,7 +101,7 @@ type sections = {
   primitive_section : string array;
   dlls_section : StringSet.t;
   dlpt_section : StringSet.t;
-  debug_section : string; (* TODO *)
+  debug_section : (int * string (* TODO *)) list;
   crcs_section : (string * Digest.t) list;
 }
 
@@ -114,6 +115,20 @@ let cut_zero_terminated_strings s =
     done;
     !res
 
+let parse_debug_section raw_debug_section =
+  let tmpfile = Common.new_temp_file "zamcov" "raw" in
+  Common.write_file ~file:tmpfile raw_debug_section;
+  let chan = open_in tmpfile in
+  let n = input_binary_int chan in
+  pr2 (spf "%d" n);
+  let res = ref [] in
+  for i = 0 to n - 1 do
+    let ofs = input_binary_int chan in
+    let _v = input_value chan in
+    Common.push2 (ofs, "") res;
+  done;
+  !res
+
 let sections_of_raw_sections name 
     raw_code_section raw_data_section raw_primitive_section
     raw_dlls_section raw_dlpt_section raw_debug_section raw_crcs_section 
@@ -125,7 +140,7 @@ let sections_of_raw_sections name
     primitive_section = StringSet.to_array (cut_zero_terminated_strings raw_primitive_section);
     dlls_section = cut_zero_terminated_strings raw_dlls_section;
     dlpt_section = cut_zero_terminated_strings raw_dlpt_section;
-    debug_section = raw_debug_section;
+    debug_section = parse_debug_section raw_debug_section;
     crcs_section = Marshal.from_string raw_crcs_section 0;
   }
 

@@ -106,7 +106,9 @@ let extract section file =
       List.iter (function (s, d) -> 
         print_endline (s^" "^Digest.to_hex d)) data.Bytecode_loader.crcs_section
   | "debug" ->
-      print_endline data.Bytecode_loader.debug_section
+    data.Bytecode_loader.debug_section +> List.iter (fun (i, s) ->
+      pr (spf "%d" i);
+    )
   | _ -> failwith (spf "section not recognized: %s" section)
 
 (* ---------------------------------------------------------------------- *)

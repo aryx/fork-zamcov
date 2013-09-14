@@ -23,12 +23,16 @@ PROGS=zamcov zamcov_test
 #------------------------------------------------------------------------------
 #package dependencies
 #------------------------------------------------------------------------------
+OCAMLCOMPILERDIR=$(shell ocamlc -where)/compiler-libs
+OCAMLCOMPILERCMA=ocamlcommon.cma
 
 #------------------------------------------------------------------------------
 # Main variables
 #------------------------------------------------------------------------------
 SYSLIBS=nums.cma bigarray.cma str.cma unix.cma
-#SYSLIBS+=$(OCAMLCOMPILERCMA)
+
+SYSLIBS+=$(OCAMLCOMPILERCMA)
+
 
 # The order of clibs and mllibs below is very important
 # mllibs must come last so that it's Fffi.init_list statements
@@ -42,7 +46,7 @@ LIBS= commons/lib.cma \
 
 MAKESUBDIRS=commons interpreter mllibs clibs
 
-INCLUDEDIRS=$(MAKESUBDIRS)
+INCLUDEDIRS=$(MAKESUBDIRS) $(OCAMLCOMPILERDIR)
 
 ##############################################################################
 # Generic
