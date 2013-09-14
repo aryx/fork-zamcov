@@ -4,7 +4,7 @@ TOP=..
 ##############################################################################
 TARGET=lib
 
-SRC= common.ml
+SRC= common.ml common2.ml ocaml.ml
 
 INCLUDEDIRS=
 

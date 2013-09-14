@@ -111,10 +111,49 @@ let extract section file =
     )
   | _ -> failwith (spf "section not recognized: %s" section)
 
+let cmo_magic_number = "Caml1999O007"
+
+module Cmo = Cmo_loader
+
+let dump_cmo file =
+  let chan = open_in file in
+  let res = String.make 12 ' ' in
+  Pervasives.really_input chan res 0 12;
+
+  if res <> cmo_magic_number
+  then failwith ("not a cmo, could not find magic number, found: " ^ res);
+
+  let ofs_compunit = Pervasives.input_binary_int chan in
+  Pervasives.seek_in chan ofs_compunit;
+  let (unit: Cmo.compilation_unit) = Pervasives.input_value chan in
+  let v = Cmo.vof_compilation_unit unit in
+  let s = Ocaml.string_of_v v in
+  pr s;
+
+  Pervasives.seek_in chan (12 + 4);
+  let codesize = unit.Cmo.cu_codesize in
+  let code = String.make  codesize ' ' in
+  Pervasives.really_input chan code 0 codesize;
+  let instr = Instructions.parse_code_section code in
+  pr " ";
+  let primitive_section = [||] in
+  for i = 0 to Array.length instr - 1 do
+    match instr.(i) with
+    | Instructions.Param _ -> ()
+    | inst -> pr (spf "%d %s" i 
+                    (Instructions.string_of_instructions primitive_section
+                       inst))
+  done;
+
+  ()
+  
+
 (* ---------------------------------------------------------------------- *)
 let extra_actions () = [
-  "-extract", " <section> <file>",
+  "-dump_bytecode", " <section> <file>",
   Common.mk_action_2_arg extract;
+  "-dump_cmo", " <file>",
+  Common.mk_action_1_arg dump_cmo;
 ]
 
 (*****************************************************************************)

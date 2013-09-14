@@ -11,6 +11,7 @@ TOP=$(shell pwd)
 
 SRC= \
  bytecode_loader.ml \
+ cmo_loader.ml \
  plugin.ml pluginDebug.ml
 
 TARGET=zamcov
