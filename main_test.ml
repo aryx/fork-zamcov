@@ -109,9 +109,21 @@ let dump_bytecode section file =
       List.iter (function (s, d) -> 
         print_endline (s^" "^Digest.to_hex d)) data.Bytecode_loader.crcs_section
   | "debug" ->
-    data.Bytecode_loader.debug_section +> List.iter (fun (i, s) ->
-      pr (spf "%d" i);
-    )
+    data.Bytecode_loader.debug_section +> List.iter (fun (i, xs) ->
+      pr (spf "---- %d ----" i);
+      xs +> List.iter (fun ev ->
+        pr (spf "%d %s %s %s" 
+              ev.Instruct.ev_pos
+              ev.Instruct.ev_module
+              (match ev.Instruct.ev_info with
+              | Instruct.Event_function -> "Event_function"
+              | Instruct.Event_return i -> spf "Event_return %d" i
+              | Instruct.Event_other -> "Event_other"
+              )
+              (let pos = ev.Instruct.ev_loc.Location.loc_start in
+               spf "%s %d" pos.Lexing.pos_fname pos.Lexing.pos_lnum)
+        )
+    ))
   | _ -> failwith (spf "section not recognized: %s" section)
 
 let cmo_magic_number = "Caml1999O007"

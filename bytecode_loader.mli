@@ -31,7 +31,7 @@ type sections = {
   primitive_section : string array;
   dlls_section : StringSet.t;
   dlpt_section : StringSet.t;
-  debug_section : (int * string (* TODO *)) list;
+  debug_section : (int * Instruct.debug_event list) list;
   crcs_section : (string * Digest.t) list;
 }
 val cut_zero_terminated_strings : string -> string list
