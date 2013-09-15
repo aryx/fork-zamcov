@@ -10,8 +10,8 @@
      block of relocatable bytecode
      debugging information if any
      compilation unit descriptor 
-*)
 
+*)
 
 (*****************************************************************************)
 (* Types *)

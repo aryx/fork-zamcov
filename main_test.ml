@@ -49,23 +49,26 @@ let main_action file args =
   (* the PRIM section of the exe *)
   let primitive_section = data.Bytecode_loader.primitive_section in 
 
-  pr2 (spf "init = %d" (List.length !Ffi.init_list));
   (* initialisation of C primitives using the information of the DLLS section
    * of the exe *)
   Ffi.init data.Bytecode_loader.dlls_section;
 
-  (* the size in byte of the bytecode *)
   Plugin.init data;
 
   (* initialisation of the virtual machine environment *)
-  Vm.run (Vm.init "main" code_section data_section Interpreter.execute_step
-            (match !Plugin.plugin_list with
-            | [] -> (fun _ -> fun _ -> ())
-            | [p] -> p.Plugin.step
-            | _ -> Plugin.step
-            )
-            (Ffi.load primitive_section)
-  );
+  Vm.run 
+    (Vm.init 
+       "main" 
+       code_section 
+       data_section 
+       Interpreter.execute_step
+       (match !Plugin.plugin_list with
+       | [] -> (fun _ -> fun _ -> ())
+       | [p] -> p.Plugin.step
+       | _ -> Plugin.step
+       )
+       (Ffi.load primitive_section)
+    );
 
   Plugin.finalise ();
   exit 0
@@ -77,7 +80,7 @@ let main_action file args =
 (* Extraction of headers from the bytecode, for primitive handling.
  * Was in mainExtract.ml.
  *)
-let extract section file =
+let dump_bytecode section file =
   if not (Sys.file_exists file) 
   then failwith "executable file does not exist";
 
@@ -167,7 +170,7 @@ let dump_cmo file =
 (* ---------------------------------------------------------------------- *)
 let extra_actions () = [
   "-dump_bytecode", " <section> <file>",
-  Common.mk_action_2_arg extract;
+  Common.mk_action_2_arg dump_bytecode;
   "-dump_cmo", " <file>",
   Common.mk_action_1_arg dump_cmo;
 ]
