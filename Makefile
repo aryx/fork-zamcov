@@ -138,7 +138,7 @@ PFFF=~/pfff
 graph:
 	$(PFFF)/codegraph -lang cmt -build .
 visual:
-	$(PFFF)/codemap -filter pfff -no_legend .
+	$(PFFF)/codemap -no_legend .
 
 ##############################################################################
 # Pad specific rules
