@@ -15,13 +15,7 @@ module StringSet :
     val to_array : 'a list -> 'a array
   end
 val exec_magic_number : string
-val cmi_magic_number : string
-val cmo_magic_number : string
-val cma_magic_number : string
-val cmx_magic_number : string
-val cmxa_magic_number : string
-val ast_impl_magic_number : string
-val ast_intf_magic_number : string
+
 val real_code_location : int ref
 exception Break
 exception Bytecode_loader_Error of string

@@ -40,13 +40,6 @@ module StringSet = StringList
 
 (* list of magic numbers for the identification of the exe*)
 let exec_magic_number = "Caml1999X008"
-and cmi_magic_number = "Caml1999I011"
-and cmo_magic_number = "Caml1999O006"
-and cma_magic_number = "Caml1999A007"
-and cmx_magic_number = "Caml1999Y011"
-and cmxa_magic_number = "Caml1999Z010"
-and ast_impl_magic_number = "Caml1999M012"
-and ast_intf_magic_number = "Caml1999N011"
 
 let real_code_location = ref 0
 
