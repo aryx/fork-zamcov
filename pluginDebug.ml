@@ -9,6 +9,14 @@ open Common
 
 module I = Instructions
 
+(*****************************************************************************)
+(* Prelude *)
+(*****************************************************************************)
+
+(*****************************************************************************)
+(* Globals *)
+(*****************************************************************************)
+
 (* TODO different instances of the VM should not write in the same file *)
 
 let debug = ref false
@@ -19,14 +27,27 @@ let prims = ref (Array.make 0 "")
 let (hdebug_events: (int, Instruct.debug_event) Hashtbl.t) = 
   Hashtbl.create 101
 
-let print_location_of_pc pc =
+(*****************************************************************************)
+(* Helpers *)
+(*****************************************************************************)
+
+let location_of_pc pc =
   let pos = (pc * 4) in
   try 
     let ev = Hashtbl.find hdebug_events pos in
     let pos = ev.Instruct.ev_loc.Location.loc_start in
-    pr (spf "%s %d" pos.Lexing.pos_fname pos.Lexing.pos_lnum)
+    Some pos
   with Not_found -> 
-    pr (spf "Not found %d" pos)
+    None
+
+let print_location_of_pc pc =
+  location_of_pc pc +> Common.do_option (fun pos ->
+    pr (spf "%s %d" pos.Lexing.pos_fname pos.Lexing.pos_lnum)
+  )
+
+(*****************************************************************************)
+(* Plugin *)
+(*****************************************************************************)
 
 let step vm instruction =
   (* print debug infomations *)
