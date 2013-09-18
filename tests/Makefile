@@ -1,4 +1,5 @@
 all: foo use_nat
+#use_commons
 
 OCAMLC=ocamlc -g
 ZAM=../zamcov
@@ -18,3 +19,8 @@ test2:
 clean:
 	rm -f *.cm*
 	rm -f foo use_nat
+
+.PHONY: use_commons
+
+use_commons: use_commons.ml
+	$(OCAMLC) -thread -linkall -custom unix.cma str.cma nums.cma bigarray.cma threads.cma -I ~/pfff/commons -o use_commons ~/pfff/commons/lib.cma  use_commons.ml
