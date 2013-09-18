@@ -26,8 +26,22 @@ open Common
 (* Main entry points *)
 (*****************************************************************************)
 
-let event_of_pc pc =
-  raise Todo
+let event_of_pc pc vm =
+  match vm.Vm.debug.(pc) with
+  | Some ev -> ev, false
+  | None ->
+    let i = ref pc in
+    while vm.Vm.debug.(!i) = None && !i >= 0 do
+      i := !i - 1;
+    done;
+    if !i < 0
+    then failwith (spf "no event found for %d" pc)
+    else
+      (match vm.Vm.debug.(!i) with
+      | Some ev -> ev, true
+      | None -> raise Impossible
+      )
+
 
 let parse_debug_section n xs =
   let arr = Array.create n None in
@@ -60,5 +74,24 @@ let print_location_of_pc pc =
   )
 *)
 
+let location_of_pc pc vm =
+  let (ev, approx) = event_of_pc pc vm in
+  let pos = ev.Instruct.ev_loc.Location.loc_start in
+  (spf "%s %d%s" 
+     pos.Lexing.pos_fname pos.Lexing.pos_lnum
+     (if approx then "(=~)" else ""))
+
 let print_backtrace vm =
-  raise Todo
+  let pc = vm.Vm.code_pointer in
+  pr (location_of_pc pc vm);
+  vm.Vm.stack +> List.iter (fun v ->
+    match v with
+    | Value.Code_pointer _ 
+    | Value.Closure _
+    | Value.Infix _
+        ->
+      let pc = Conv_obj_value.get_code v in
+      pr (location_of_pc pc vm);
+    | _ -> ()
+  )
+

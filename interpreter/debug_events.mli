@@ -1,6 +1,6 @@
 
 val event_of_pc:
-  int -> Instruct.debug_event option
+  int -> Vm.virtual_machine -> Instruct.debug_event * bool
 
 val print_backtrace: 
   Vm.virtual_machine -> unit
