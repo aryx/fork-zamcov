@@ -76,8 +76,9 @@ rec:
 rec.opt:
 	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i all.opt || exit 1; done 
 
+# -custom because commons/lib.cma now includes some C code
 zamcov: $(LIBS) $(OBJS) main_zamcov.cmo
-	$(OCAMLC) $(BYTECODE_STATIC) -o $@ $(SYSLIBS) $^
+	$(OCAMLC) -custom $(BYTECODE_STATIC) -o $@ $(SYSLIBS) $^
 zamcov.opt: $(LIBS:.cma=.cmxa) $(OBJS:.cmo=.cmx) main_zamcov.cmx
 	$(OCAMLOPT) $(STATIC) -o $@ $(SYSLIBS:.cma=.cmxa)  $^
 zamcov.top: $(LIBS) $(OBJS) 
