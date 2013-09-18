@@ -159,15 +159,18 @@ let rec obj_of_block b =
   aux b
 and obj_of_value = function
   | Value.Code_pointer _ 
-  | Value.Stack_pointer _ -> Vm.vm_error "obj_of_value of pointer"
+  | Value.Stack_pointer _ -> 
+    Vm.vm_error "obj_of_value of pointer"
   | Value.Int n -> Obj.repr n
   | Value.Float f -> Obj.repr f
   | Value.String s -> Obj.repr s
   | Value.Double_array a -> Obj.repr a
   | Value.Custom o -> o
   | Value.Block b -> obj_of_block b
-  | Value.Closure _ -> Vm.vm_error "obj_of_value: closures not yet handled"
-  | Value.Infix _ -> Vm.vm_error "obj_of_value: infix not yet handled"
+  | Value.Closure _ -> 
+    Vm.vm_error "obj_of_value: closures not yet handled"
+  | Value.Infix _ -> 
+    Vm.vm_error "obj_of_value: infix not yet handled"
 
 (*****************************************************************************)
 (* Obj -> Value *)
