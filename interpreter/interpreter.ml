@@ -5,6 +5,7 @@
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 open Common
+
 module Conv = Conv_obj_value
 
 (*****************************************************************************)
@@ -20,16 +21,20 @@ exception Exception_raised
 
 let rec string_of_global_data gb = 
   let s = ref "[| " in
-    for i=0 to Array.length gb -1 do
-      match gb.(i) with
-	| Value.Block b as c -> s := !s^" "^(Conv.string_of_value c)^" "^(string_of_global_data b.Value.data)^";";
-	| c -> s := !s^" "^(Conv.string_of_value c)^";";
-    done; 
-    s := !s^" |]";
-    !s
+  for i=0 to Array.length gb -1 do
+    match gb.(i) with
+    | Value.Block b as c -> 
+      s := !s^" "^(Conv.string_of_value c)^" "^
+                  (string_of_global_data b.Value.data)^";";
+    | c -> s := !s^" "^(Conv.string_of_value c)^";";
+  done; 
+  s := !s^" |]";
+  !s
 
-let raise_our_exception vm e = match vm.Vm.caml_trap_pointer with
-  | None -> Vm.fatal_error ("exception "^Conv.string_of_exception e)
+let raise_our_exception vm e = 
+  match vm.Vm.caml_trap_pointer with
+  | None -> 
+      Vm.fatal_error ("exception "^Conv.string_of_exception e)
   | Some p ->
       vm.Vm.stack <- !p;
       vm.Vm.code_pointer <- Conv.get_code (Vm.pop vm);
@@ -671,7 +676,7 @@ let execute_step vm instruction =
     (* Calling C functions *)
     (* ------------------------------------------------------------------ *)
 
-        (* TODO are we sure we don't need to push the environment as specified? *)
+    (* TODO are we sure we don't need to push the environment as specified? *)
     | Instructions.C_CALL1 n ->
       let a0 = vm.Vm.accumulator in
       (try 
