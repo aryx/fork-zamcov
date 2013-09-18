@@ -47,7 +47,7 @@ SRC2= \
 # other_dbm.ml \
 
 # for Ffi
-INCLUDEDIRS=$(TOP)/interpreter
+INCLUDEDIRS=$(TOP)/interpreter $(TOP)/commons
 
 # to prevent the automatic deletion done by make
 .SECONDARY: $(SRC2)
