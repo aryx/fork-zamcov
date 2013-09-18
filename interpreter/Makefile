@@ -10,7 +10,7 @@ SRC= instructions.ml value.ml \
      interpreter.ml \
      ffi.ml
 
-INCLUDEDIRS=
+INCLUDEDIRS=$(TOP)/commons
 
 ##############################################################################
 # Generic variables

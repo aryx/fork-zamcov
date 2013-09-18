@@ -7,6 +7,10 @@
 (***********************************************************************)
 open Utils
 
+(*****************************************************************************)
+(* Value -> (int, string, Obj) *)
+(*****************************************************************************)
+
 let int_of_tag = function
   | Value.Zero_tag -> 0
   | Value.Structured_tag t -> t
@@ -164,25 +168,9 @@ and obj_of_value = function
   | Value.Closure _ -> vm_error "obj_of_value: closures not yet handled"
   | Value.Infix _ -> vm_error "obj_of_value: infix not yet handled"
 
-
-(* set the value of the field data of a block at index idx *)      
-(* TODO review & test *)
-let set_field block idx v =
-  match block, v with
-    | Value.Infix _, _ -> vm_error "set_field Infix"
-    | Value.Block b, _ -> b.Value.data.(idx) <- v
-    | Value.Double_array a, Value.Float f -> a.(idx) <- f
-    | Value.String s, Value.Int i when i >= 0 -> String.set s idx (char_of_int (i mod 256))
-    | Value.String s, Value.Int i when i mod 256 = 0 -> String.set s idx '\000'
-    | Value.String s, Value.Int i -> String.set s idx (char_of_int ((i mod 256) + 256))
-    | v, _ -> vm_error ("can't set_field of "^(string_of_value v))
-
-let create_block size tag = (* TODO deal with known tags *)
-  assert (size >= 0);
-  Value.Block { 
-    Value.tag = Value.Structured_tag tag;
-    Value.data = Array.make (size) (Value.Int 0);
-  }
+(*****************************************************************************)
+(* Obj -> Value *)
+(*****************************************************************************)
 
 let create_closure pointer nfuncs nvars =
   let res = { 
@@ -193,13 +181,6 @@ let create_closure pointer nfuncs nvars =
   res.Value.funcs.(0) <- Value.Code_pointer pointer;
   res
     
-let create_infix parent pointer idx = 
-  Value.Infix {
-    Value.icode = pointer;
-    Value.parent = parent;
-    Value.idx = idx;
-  }
-
 let value_of_obj o =
   let seen = ref [] in
   let rec aux o =
@@ -243,6 +224,37 @@ let value_of_obj o =
             }
   in
   aux o
+
+(*****************************************************************************)
+(* Misc *)
+(*****************************************************************************)
+
+(* set the value of the field data of a block at index idx *)      
+(* TODO review & test *)
+let set_field block idx v =
+  match block, v with
+    | Value.Infix _, _ -> vm_error "set_field Infix"
+    | Value.Block b, _ -> b.Value.data.(idx) <- v
+    | Value.Double_array a, Value.Float f -> a.(idx) <- f
+    | Value.String s, Value.Int i when i >= 0 -> String.set s idx (char_of_int (i mod 256))
+    | Value.String s, Value.Int i when i mod 256 = 0 -> String.set s idx '\000'
+    | Value.String s, Value.Int i -> String.set s idx (char_of_int ((i mod 256) + 256))
+    | v, _ -> vm_error ("can't set_field of "^(string_of_value v))
+
+let create_block size tag = (* TODO deal with known tags *)
+  assert (size >= 0);
+  Value.Block { 
+    Value.tag = Value.Structured_tag tag;
+    Value.data = Array.make (size) (Value.Int 0);
+  }
+
+let create_infix parent pointer idx = 
+  Value.Infix {
+    Value.icode = pointer;
+    Value.parent = parent;
+    Value.idx = idx;
+  }
+
 
 
 (* get the value of the field data of a block at index idx *)      
