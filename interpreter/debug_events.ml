@@ -55,6 +55,7 @@ let print_location_of_pc pc =
   location_of_pc pc +> Common.do_option (fun pos ->
     pr (spf "%s %d" pos.Lexing.pos_fname pos.Lexing.pos_lnum)
   )
-
-
 *)
+
+let print_backtrace vm =
+  raise Todo

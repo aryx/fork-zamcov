@@ -1027,4 +1027,7 @@ let execute_step vm instruction =
   )
   with
   | Exception_raised -> ()
+  | (Vm.Fatal_error s | Vm.Vm_error s) as exn ->
+    Debug_events.print_backtrace vm;
+    raise exn
   | e -> raise e
