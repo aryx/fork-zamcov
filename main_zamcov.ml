@@ -45,6 +45,9 @@ let init_exec s =
                    | [p] -> p.Plugin.step
                    | _ -> Plugin.step)
                  (Ffi.load primitive_section)
+                 (Debug_events.parse_debug_section 
+                    (Array.length code_section)
+                    data.Bytecode_loader.debug_section)
   );
 
   Plugin.finalise ();

@@ -34,6 +34,7 @@ and virtual_machine = {
   plugin_step : virtual_machine -> Instructions.instruction -> unit;
   execute_step : virtual_machine -> Instructions.instruction -> unit;
   prim_table : prim_table;
+  debug: Instruct.debug_event option array;
 }
 
 (* size of the stack of the execution enviornment *)
@@ -78,20 +79,23 @@ let run vm =
       vm.execute_step vm instruction;
   done
 
-let init name code global execute_step plugin_step prim_table = {
+let init name code global execute_step plugin_step prim_table debug = {
   name = name;
   code = code;
+
   extra_arguments = 0;
   environment = Value.atom;
   accumulator = (Value.Int 0);
   stack = [];
   code_pointer = 0;
   caml_trap_pointer = None;
+
   global_data = global;
 
   plugin_step = plugin_step;
   execute_step = execute_step;
-  prim_table = prim_table
+  prim_table = prim_table;
+  debug;
 }
 
 let copy vm name code = { vm with

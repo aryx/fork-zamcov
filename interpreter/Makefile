@@ -6,11 +6,13 @@ TARGET=lib
 
 SRC= instructions.ml value.ml \
      vm.ml \
-     utils.ml conv_obj_value.ml \
+     utils.ml conv_obj_value.ml debug_events.ml \
      interpreter.ml \
      ffi.ml
 
-INCLUDEDIRS=$(TOP)/commons
+OCAMLCOMPILERDIR=$(shell ocamlc -where)/compiler-libs
+
+INCLUDEDIRS=$(TOP)/commons $(OCAMLCOMPILERDIR)
 
 ##############################################################################
 # Generic variables

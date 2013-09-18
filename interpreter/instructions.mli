@@ -1,5 +1,7 @@
 exception Unknown_instruction of int
+
 type nb_params = No_params | One_int | Two_ints | Recursive_closure | Switch
+
 type instruction =
     ACC0
   | ACC1
@@ -148,10 +150,12 @@ type instruction =
   | EVENT
   | BREAK
   | Param of int
+
 val num_parameters : int -> nb_params
 val instruction_of_number0 : int -> instruction
 val instruction_of_number1 : int -> int -> instruction
 val instruction_of_number2 : int -> int -> int -> instruction
 val string_of_instructions : string array -> instruction -> string
 val input_int32_from_string : string -> int -> int
+
 val parse_code_section : string -> instruction array

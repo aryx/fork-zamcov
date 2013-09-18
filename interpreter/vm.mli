@@ -12,6 +12,7 @@ type virtual_machine = {
   plugin_step : virtual_machine -> Instructions.instruction -> unit;
   execute_step : virtual_machine -> Instructions.instruction -> unit;
   prim_table : prim_table;
+  debug: Instruct.debug_event option array;
 }
 
 and prim_table = {
@@ -43,13 +44,16 @@ val peek : virtual_machine -> int -> Value.value
 val assign : virtual_machine -> int -> Value.value -> unit
 
 val run : virtual_machine -> unit
+
 val init :
   string ->
   Instructions.instruction array ->
   Value.value ->
   (virtual_machine -> Instructions.instruction -> unit) ->
   (virtual_machine -> Instructions.instruction -> unit) ->
-  prim_table -> virtual_machine
+  prim_table -> 
+  Instruct.debug_event option array ->
+  virtual_machine
 
 val copy :
   virtual_machine ->

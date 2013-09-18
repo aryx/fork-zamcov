@@ -1,7 +1,6 @@
 (***********************************************************************)
 (*                              Project Couverture                     *)
 (*                                                                     *)
-(* file: pluginDebug.ml                                                *)
 (* authors: Adrien Jonquet, Philippe Wang, Alexis Darrasse             *)
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
@@ -28,26 +27,9 @@ let prims = ref (Array.make 0 "")
 
 let depth = ref 0
 
-let (hdebug_events: (int, Instruct.debug_event) Hashtbl.t) = 
-  Hashtbl.create 101
-
 (*****************************************************************************)
 (* Helpers *)
 (*****************************************************************************)
-
-let location_of_pc pc =
-  let pos = (pc * 4) in
-  try 
-    let ev = Hashtbl.find hdebug_events pos in
-    let pos = ev.Instruct.ev_loc.Location.loc_start in
-    Some pos
-  with Not_found -> 
-    None
-
-let print_location_of_pc pc =
-  location_of_pc pc +> Common.do_option (fun pos ->
-    pr (spf "%s %d" pos.Lexing.pos_fname pos.Lexing.pos_lnum)
-  )
 
 (*****************************************************************************)
 (* Plugin *)
@@ -70,7 +52,7 @@ let step vm instruction =
     ->
     pr (spf "%s: (%04d) %s" (String.make !depth ' ') vm.Vm.code_pointer
           (Instructions.string_of_instructions !prims instruction));
-   print_location_of_pc (vm.Vm.code_pointer);
+    (*print_location_of_pc (vm.Vm.code_pointer);*)
     ()
 
   | I.APPLY _
@@ -89,8 +71,10 @@ let step vm instruction =
           vm.Vm.code_pointer
           dst
           (Instructions.string_of_instructions !prims instruction));
+(*
     print_location_of_pc (vm.Vm.code_pointer);
     print_location_of_pc dst (*(vm.Vm.code_pointer)*);
+*)
     ()
   | I.RETURN _ ->
     (*depth := !depth -1;*)
@@ -101,16 +85,11 @@ let step vm instruction =
 
 let init data =
   prims := data.Bytecode_loader.primitive_section;
-  data.Bytecode_loader.debug_section +> List.iter (fun (orig, events) ->
-    events +> List.iter (fun ev ->
-      let pos = ev.Instruct.ev_pos in
-      (* relocate *)
-      Hashtbl.replace hdebug_events (pos + orig) ev;
-    );
-  );
   if !debug then debug_c := open_out !name
 
-let finalise () = if !debug then close_out !debug_c
+let finalise () = 
+  if !debug 
+  then close_out !debug_c
 
 let _ =
   Plugin.register_plugin init step finalise

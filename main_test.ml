@@ -57,6 +57,9 @@ let main_action file args =
        Interpreter.execute_step
        Plugin.step
        (Ffi.load data.Bytecode_loader.primitive_section)
+       (Debug_events.parse_debug_section 
+          (Array.length data.Bytecode_loader.code_section)
+          data.Bytecode_loader.debug_section)
     );
 
   Plugin.finalise ();
