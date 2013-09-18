@@ -6,12 +6,13 @@
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 
+module Conv = Conv_obj_value
 open Ffi
 
 external thread_new : (unit -> unit) -> Obj.t = "caml_thread_new"
 
 let caml_thread_new vm arg =
-  Value.Custom (thread_new (Utils.create_callback vm arg))
+  Value.Custom (thread_new (Conv.create_callback vm arg))
 
 let prims () =
   add1 "caml_thread_new" caml_thread_new

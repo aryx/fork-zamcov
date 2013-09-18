@@ -6,6 +6,7 @@
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 
+module Conv = Conv_obj_value
 open Ffi
 
 let prims () =

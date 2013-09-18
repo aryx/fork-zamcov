@@ -5,6 +5,7 @@
 (* authors: Adrien Jonquet, Philippe Wang, Alexis Darrasse             *)
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
+module Conv = Conv_obj_value
 
 exception EXIT_ON_STOP
 exception Exception_raised
@@ -13,34 +14,34 @@ let rec string_of_global_data gb =
   let s = ref "[| " in
     for i=0 to Array.length gb -1 do
       match gb.(i) with
-	| Value.Block b as c -> s := !s^" "^(Utils.string_of_value c)^" "^(string_of_global_data b.Value.data)^";";
-	| c -> s := !s^" "^(Utils.string_of_value c)^";";
+	| Value.Block b as c -> s := !s^" "^(Conv.string_of_value c)^" "^(string_of_global_data b.Value.data)^";";
+	| c -> s := !s^" "^(Conv.string_of_value c)^";";
     done; 
     s := !s^" |]";
     !s
 
 let raise_our_exception vm e = match vm.Vm.caml_trap_pointer with
-  | None -> Utils.fatal_error ("exception "^Utils.string_of_exception e)
+  | None -> Utils.fatal_error ("exception "^Conv.string_of_exception e)
   | Some p ->
       vm.Vm.stack <- !p;
-      vm.Vm.code_pointer <- Utils.get_code (Vm.pop vm);
-      vm.Vm.caml_trap_pointer <- Utils.unbox_stack_pointer (Vm.pop vm);
+      vm.Vm.code_pointer <- Conv.get_code (Vm.pop vm);
+      vm.Vm.caml_trap_pointer <- Conv.unbox_stack_pointer (Vm.pop vm);
       vm.Vm.environment <- Vm.pop vm;
-      vm.Vm.extra_arguments <- Utils.int_of_value (Vm.pop vm);
+      vm.Vm.extra_arguments <- Conv.int_of_value (Vm.pop vm);
       raise Exception_raised
  
 let raise_exception vm e =
-  let v = Utils.value_of_obj (Obj.repr e) in
-  let t = Utils.get_field v 0 in
-    for i = 0 to Utils.block_size vm.Vm.global_data - 1 do
-      if Utils.get_field vm.Vm.global_data i = t then
+  let v = Conv.value_of_obj (Obj.repr e) in
+  let t = Conv.get_field v 0 in
+    for i = 0 to Conv.block_size vm.Vm.global_data - 1 do
+      if Conv.get_field vm.Vm.global_data i = t then
       begin
-	Utils.set_field v 0 (Utils.get_field vm.Vm.global_data i);
+	Conv.set_field v 0 (Conv.get_field vm.Vm.global_data i);
 	vm.Vm.accumulator <- v;
 	raise_our_exception vm v
       end
     done;
-    Utils.vm_error ("unknown exception "^Utils.string_of_exception v)
+    Utils.vm_error ("unknown exception "^Conv.string_of_exception v)
 
 let not_yet_implemented : string -> unit = fun s ->
   Utils.fatal_error (s ^ " is not yet implemented\n")
@@ -51,7 +52,7 @@ let dump_state vm =
     "==============================\nextra_arguments : %d\naccumulator : %s\n
 \ncode_pointer : %d\nglobal_data length : %d\n\n==============================\n"
     (vm.Vm.extra_arguments)
-    (Utils.string_of_value vm.Vm.accumulator)
+    (Conv.string_of_value vm.Vm.accumulator)
     (vm.Vm.code_pointer)
     (match vm.Vm.global_data with 
        | Value.Block b -> Array.length b.Value.data
@@ -67,7 +68,7 @@ let dump_globals gb =
 	  for i=0 to (Array.length b.Value.data)-1 do
 	    aux b.Value.data.(i)
 	  done;
-      | v -> print_string (Utils.string_of_value v); print_string "; "
+      | v -> print_string (Conv.string_of_value v); print_string "; "
   in
     aux gb;
     print_string "]\n"
@@ -81,7 +82,7 @@ let print_block block =
 	  for i=0 to (Array.length b.Value.data)-1 do
 	    aux b.Value.data.(i)
 	  done;
-      | v -> print_string (Utils.string_of_value v); print_string "; "
+      | v -> print_string (Conv.string_of_value v); print_string "; "
   in
     aux block;
     print_string "]\n"
@@ -96,7 +97,7 @@ let dump_env env =
 	    aux b.Value.data.(i)
 	  done;
 	  print_string " ] ";
-      | v -> print_string (Utils.string_of_value v); print_string "; "
+      | v -> print_string (Conv.string_of_value v); print_string "; "
   in
     aux env;
     print_string "]\n"
@@ -111,7 +112,7 @@ let dump_stack stack sp =
 	    aux b.Value.data.(i)
 	  done;
 	  print_string " ]; ";
-      | v -> print_string (Utils.string_of_value v); print_string "; "
+      | v -> print_string (Conv.string_of_value v); print_string "; "
   in
     for i= sp to 1048574 do
       aux stack.(i)
@@ -205,40 +206,40 @@ let execute_step vm instruction =
 	(*****************************************************************************)
 
 	| Instructions.ENVACC1 ->
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.environment 1
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.environment 1
 	      
 	| Instructions.ENVACC2 ->
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.environment 2
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.environment 2
 
 	| Instructions.ENVACC3 ->
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.environment 3
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.environment 3
 	      
 	| Instructions.ENVACC4 ->
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.environment 4
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.environment 4
 
 	| Instructions.ENVACC n ->
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.environment n;
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.environment n;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
 	| Instructions.PUSHENVACC1 ->
 	    Vm.push vm vm.Vm.accumulator;
-	    vm.Vm.accumulator <- Utils.get_field vm.Vm.environment 1
+	    vm.Vm.accumulator <- Conv.get_field vm.Vm.environment 1
 
 	| Instructions.PUSHENVACC2 ->
 	    Vm.push vm vm.Vm.accumulator;
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.environment 2
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.environment 2
 
 	| Instructions.PUSHENVACC3 ->
 	    Vm.push vm vm.Vm.accumulator;
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.environment 3
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.environment 3
 
 	| Instructions.PUSHENVACC4 ->
 	    Vm.push vm vm.Vm.accumulator;
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.environment 4
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.environment 4
 
 	| Instructions.PUSHENVACC n ->
 	    Vm.push vm vm.Vm.accumulator;
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.environment n;
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.environment n;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
 
@@ -254,7 +255,7 @@ let execute_step vm instruction =
 
 	| Instructions.APPLY n ->
             vm.Vm.extra_arguments <- n - 1;
-            vm.Vm.code_pointer <- Utils.get_code vm.Vm.accumulator;
+            vm.Vm.code_pointer <- Conv.get_code vm.Vm.accumulator;
 	    vm.Vm.environment <- vm.Vm.accumulator
 
 	| Instructions.APPLY1 -> 
@@ -263,7 +264,7 @@ let execute_step vm instruction =
 	      Vm.push vm vm.Vm.environment; 
 	      Vm.push vm (Value.Code_pointer vm.Vm.code_pointer);
 	      Vm.push vm arg1; 
-	      vm.Vm.code_pointer <- Utils.get_code vm.Vm.accumulator;
+	      vm.Vm.code_pointer <- Conv.get_code vm.Vm.accumulator;
 	      vm.Vm.environment <- vm.Vm.accumulator;
 	      vm.Vm.extra_arguments <- 0
 	      
@@ -275,7 +276,7 @@ let execute_step vm instruction =
 	      Vm.push vm (Value.Code_pointer vm.Vm.code_pointer);
 	      Vm.push vm arg2; 
 	      Vm.push vm arg1; 
-	      vm.Vm.code_pointer <- Utils.get_code vm.Vm.accumulator;
+	      vm.Vm.code_pointer <- Conv.get_code vm.Vm.accumulator;
 	      vm.Vm.environment <- vm.Vm.accumulator;
 	      vm.Vm.extra_arguments <- 1
 
@@ -289,7 +290,7 @@ let execute_step vm instruction =
 	      Vm.push vm arg3; 
 	      Vm.push vm arg2; 
 	      Vm.push vm arg1; 
-	      vm.Vm.code_pointer <- Utils.get_code vm.Vm.accumulator;
+	      vm.Vm.code_pointer <- Conv.get_code vm.Vm.accumulator;
 	      vm.Vm.environment <- vm.Vm.accumulator;
 	      vm.Vm.extra_arguments <- 2
 
@@ -299,7 +300,7 @@ let execute_step vm instruction =
               Vm.assign vm (sp_dist + i) (Vm.peek vm i);
 	    done;
 	    for i = 1 to sp_dist do ignore (Vm.pop vm) done;
-	    vm.Vm.code_pointer <- Utils.get_code vm.Vm.accumulator;
+	    vm.Vm.code_pointer <- Conv.get_code vm.Vm.accumulator;
 	    vm.Vm.environment <- vm.Vm.accumulator; 
 	    vm.Vm.extra_arguments <- vm.Vm.extra_arguments + nargs - 1
 		
@@ -307,7 +308,7 @@ let execute_step vm instruction =
             let arg1 = Vm.pop vm in 
 	    for i = 2 to n do ignore (Vm.pop vm) done;
 	    Vm.push vm arg1;
-	    vm.Vm.code_pointer <- Utils.get_code vm.Vm.accumulator;
+	    vm.Vm.code_pointer <- Conv.get_code vm.Vm.accumulator;
 	    vm.Vm.environment <- vm.Vm.accumulator
 
 	| Instructions.APPTERM2 n ->
@@ -316,7 +317,7 @@ let execute_step vm instruction =
 	    for i = 3 to n do ignore (Vm.pop vm) done;
 	    Vm.push vm arg2;
 	    Vm.push vm arg1;
-	    vm.Vm.code_pointer <- Utils.get_code vm.Vm.accumulator;
+	    vm.Vm.code_pointer <- Conv.get_code vm.Vm.accumulator;
 	    vm.Vm.environment <- vm.Vm.accumulator;
 	    vm.Vm.extra_arguments <- vm.Vm.extra_arguments + 1
 
@@ -328,7 +329,7 @@ let execute_step vm instruction =
 	    Vm.push vm arg3;
 	    Vm.push vm arg2;
 	    Vm.push vm arg1;
-	    vm.Vm.code_pointer <- Utils.get_code vm.Vm.accumulator;
+	    vm.Vm.code_pointer <- Conv.get_code vm.Vm.accumulator;
 	    vm.Vm.environment <- vm.Vm.accumulator; 
 	    vm.Vm.extra_arguments <- vm.Vm.extra_arguments + 2
 
@@ -337,22 +338,22 @@ let execute_step vm instruction =
             if vm.Vm.extra_arguments > 0 then
 	      begin
 		vm.Vm.extra_arguments <- vm.Vm.extra_arguments - 1;
-		vm.Vm.code_pointer <- Utils.get_code vm.Vm.accumulator;
+		vm.Vm.code_pointer <- Conv.get_code vm.Vm.accumulator;
 		vm.Vm.environment <- vm.Vm.accumulator;
 	      end
             else
 	      begin
-		vm.Vm.code_pointer <- Utils.get_code (Vm.pop vm);
+		vm.Vm.code_pointer <- Conv.get_code (Vm.pop vm);
 		vm.Vm.environment <- Vm.pop vm;
-		vm.Vm.extra_arguments <- Utils.int_of_value (Vm.pop vm);
+		vm.Vm.extra_arguments <- Conv.int_of_value (Vm.pop vm);
 	      end
 		
 	| Instructions.RESTART ->
-            let num_args = (Utils.block_size vm.Vm.environment) - 2 in
+            let num_args = (Conv.block_size vm.Vm.environment) - 2 in
             for i = 1 to num_args do
-              Vm.push vm (Utils.get_field vm.Vm.environment (num_args - i + 2));
+              Vm.push vm (Conv.get_field vm.Vm.environment (num_args - i + 2));
             done;
-            vm.Vm.environment <- Utils.get_field vm.Vm.environment 1;
+            vm.Vm.environment <- Conv.get_field vm.Vm.environment 1;
             vm.Vm.extra_arguments <- vm.Vm.extra_arguments + num_args
 
 	| Instructions.GRAB required ->
@@ -361,22 +362,22 @@ let execute_step vm instruction =
               vm.Vm.extra_arguments <- vm.Vm.extra_arguments - required
             else 
               begin
-                let c = Utils.create_closure (vm.Vm.code_pointer - 3) 1
+                let c = Conv.create_closure (vm.Vm.code_pointer - 3) 1
                                              (vm.Vm.extra_arguments + 2) in
                 vm.Vm.accumulator <- Value.Closure c;
                 c.Value.vars.(0) <- vm.Vm.environment;
                 for i = 1 to vm.Vm.extra_arguments + 1 do
                   c.Value.vars.(i) <- Vm.pop vm
                 done;
-                vm.Vm.code_pointer <- Utils.get_code (Vm.pop vm);
+                vm.Vm.code_pointer <- Conv.get_code (Vm.pop vm);
                 vm.Vm.environment <- Vm.pop vm;
-                vm.Vm.extra_arguments <- Utils.int_of_value (Vm.pop vm);
+                vm.Vm.extra_arguments <- Conv.int_of_value (Vm.pop vm);
               end
 
 	| Instructions.CLOSURE (nvars,ofs) ->
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
             if nvars > 0 then Vm.push vm vm.Vm.accumulator;
-            let c = Utils.create_closure (vm.Vm.code_pointer + ofs) 1 nvars in
+            let c = Conv.create_closure (vm.Vm.code_pointer + ofs) 1 nvars in
             for i = 0 to (nvars - 1) do
               c.Value.vars.(i) <- (Vm.pop vm)
             done;
@@ -386,34 +387,34 @@ let execute_step vm instruction =
 	| Instructions.CLOSUREREC (nfuncs,nvars,o,t) ->
 	    vm.Vm.code_pointer <- vm.Vm.code_pointer + 2;
             if nvars > 0 then Vm.push vm vm.Vm.accumulator;
-            let c = Utils.create_closure (vm.Vm.code_pointer + o) nfuncs nvars in
+            let c = Conv.create_closure (vm.Vm.code_pointer + o) nfuncs nvars in
             for i = 0 to nvars - 1 do
               c.Value.vars.(i) <- Vm.pop vm
             done;
             vm.Vm.accumulator <- Value.Closure c;
 	    Vm.push vm vm.Vm.accumulator;
             for i = 1 to (nfuncs - 1) do
-              c.Value.funcs.(i) <- Utils.create_infix c (vm.Vm.code_pointer + t.(i-1)) i;
+              c.Value.funcs.(i) <- Conv.create_infix c (vm.Vm.code_pointer + t.(i-1)) i;
               Vm.push vm c.Value.funcs.(i)
             done;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + nfuncs
 		  
 	| Instructions.OFFSETCLOSUREM2 -> 
-	    vm.Vm.accumulator <- Utils.offset vm.Vm.environment (-2)
+	    vm.Vm.accumulator <- Conv.offset vm.Vm.environment (-2)
 	      
 	| Instructions.OFFSETCLOSURE0 -> 
             vm.Vm.accumulator <- vm.Vm.environment
 	    
 	| Instructions.OFFSETCLOSURE2 -> 
-	    vm.Vm.accumulator <- Utils.offset vm.Vm.environment 2
+	    vm.Vm.accumulator <- Conv.offset vm.Vm.environment 2
 	      
 	| Instructions.OFFSETCLOSURE n ->
-	    vm.Vm.accumulator <- Utils.offset vm.Vm.environment n;
+	    vm.Vm.accumulator <- Conv.offset vm.Vm.environment n;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
 	| Instructions.PUSHOFFSETCLOSUREM2 ->
 	    Vm.push vm vm.Vm.accumulator;
-	    vm.Vm.accumulator <- Utils.offset vm.Vm.environment (-2)
+	    vm.Vm.accumulator <- Conv.offset vm.Vm.environment (-2)
 	    
 	| Instructions.PUSHOFFSETCLOSURE0 -> 
 	    Vm.push vm vm.Vm.accumulator;
@@ -421,11 +422,11 @@ let execute_step vm instruction =
 	    
 	| Instructions.PUSHOFFSETCLOSURE2 -> 
 	    Vm.push vm vm.Vm.accumulator;
-	    vm.Vm.accumulator <- Utils.offset vm.Vm.environment 2
+	    vm.Vm.accumulator <- Conv.offset vm.Vm.environment 2
 
 	| Instructions.PUSHOFFSETCLOSURE n ->
 	    Vm.push vm vm.Vm.accumulator;
-	    vm.Vm.accumulator <- Utils.offset vm.Vm.environment n;
+	    vm.Vm.accumulator <- Conv.offset vm.Vm.environment n;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
 	(************************************************************************)
@@ -433,27 +434,27 @@ let execute_step vm instruction =
 	(************************************************************************)
             
 	| Instructions.GETGLOBAL n ->
-	    vm.Vm.accumulator <- Utils.get_field vm.Vm.global_data n;
+	    vm.Vm.accumulator <- Conv.get_field vm.Vm.global_data n;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
 	| Instructions.PUSHGETGLOBAL n ->
 	    Vm.push vm vm.Vm.accumulator;
-	    vm.Vm.accumulator <- Utils.get_field vm.Vm.global_data n;
+	    vm.Vm.accumulator <- Conv.get_field vm.Vm.global_data n;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 	    
 	| Instructions.GETGLOBALFIELD (n,p) ->
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.global_data n;
-	    vm.Vm.accumulator <- Utils.get_field vm.Vm.accumulator p;
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.global_data n;
+	    vm.Vm.accumulator <- Conv.get_field vm.Vm.accumulator p;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 2
 
 	| Instructions.PUSHGETGLOBALFIELD (n,p) ->
 	    Vm.push vm vm.Vm.accumulator;
-	    vm.Vm.accumulator <- Utils.get_field vm.Vm.global_data n;
-	    vm.Vm.accumulator <- Utils.get_field vm.Vm.accumulator p;
+	    vm.Vm.accumulator <- Conv.get_field vm.Vm.global_data n;
+	    vm.Vm.accumulator <- Conv.get_field vm.Vm.accumulator p;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 2
 	    
 	| Instructions.SETGLOBAL n ->
-	    Utils.set_field vm.Vm.global_data n vm.Vm.accumulator;
+	    Conv.set_field vm.Vm.global_data n vm.Vm.accumulator;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
             vm.Vm.accumulator <- Value.Int 0
 	    
@@ -469,50 +470,50 @@ let execute_step vm instruction =
 	    vm.Vm.accumulator <- Value.atom
 	      
 	| Instructions.ATOM n ->
-	    vm.Vm.accumulator <- Utils.create_block 0 n;
+	    vm.Vm.accumulator <- Conv.create_block 0 n;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
 	| Instructions.PUSHATOM n ->
 	    Vm.push vm vm.Vm.accumulator;
-	    vm.Vm.accumulator <- Utils.create_block 0 n;
+	    vm.Vm.accumulator <- Conv.create_block 0 n;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
 	| Instructions.MAKEBLOCK (wosize,tag) ->
-            let block = Utils.create_block wosize tag in
-              Utils.set_field block 0 vm.Vm.accumulator;
+            let block = Conv.create_block wosize tag in
+              Conv.set_field block 0 vm.Vm.accumulator;
               for i = 1 to wosize - 1 do
-                Utils.set_field block i (Vm.pop vm);
+                Conv.set_field block i (Vm.pop vm);
               done;
               vm.Vm.accumulator <- block;
               vm.Vm.code_pointer <- vm.Vm.code_pointer + 2
 
 	| Instructions.MAKEBLOCK1 tag ->
-            let block = Utils.create_block 1 tag in
-              Utils.set_field block 0 vm.Vm.accumulator;
+            let block = Conv.create_block 1 tag in
+              Conv.set_field block 0 vm.Vm.accumulator;
               vm.Vm.accumulator <- block;
               vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
 	| Instructions.MAKEBLOCK2 tag ->
-            let block = Utils.create_block 2 tag in
-              Utils.set_field block 0 vm.Vm.accumulator;
-              Utils.set_field block 1 (Vm.pop vm);
+            let block = Conv.create_block 2 tag in
+              Conv.set_field block 0 vm.Vm.accumulator;
+              Conv.set_field block 1 (Vm.pop vm);
               vm.Vm.accumulator <- block;        
               vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
 	| Instructions.MAKEBLOCK3 tag ->
-            let block = Utils.create_block 3 tag in
-              Utils.set_field block 0 vm.Vm.accumulator;
-              Utils.set_field block 1 (Vm.pop vm);
-              Utils.set_field block 2 (Vm.pop vm);
+            let block = Conv.create_block 3 tag in
+              Conv.set_field block 0 vm.Vm.accumulator;
+              Conv.set_field block 1 (Vm.pop vm);
+              Conv.set_field block 2 (Vm.pop vm);
               vm.Vm.accumulator <- block;        
               vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
                 (* TODO test *)
 	| Instructions.MAKEFLOATBLOCK size ->
             let a = Array.make size 0. in
-              a.(0) <- Utils.unbox_float vm.Vm.accumulator;
+              a.(0) <- Conv.unbox_float vm.Vm.accumulator;
               for i = 1 to size - 1 do
-                a.(i) <- Utils.unbox_float (Vm.pop vm);
+                a.(i) <- Conv.unbox_float (Vm.pop vm);
               done;
               vm.Vm.accumulator <- Value.Double_array a;
               vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
@@ -522,39 +523,39 @@ let execute_step vm instruction =
 	(*******************************************************************************)	    
 
 	| Instructions.GETFIELD0 ->
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.accumulator 0
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.accumulator 0
 
 	| Instructions.GETFIELD1 ->
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.accumulator 1
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.accumulator 1
 
 	| Instructions.GETFIELD2 ->
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.accumulator 2
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.accumulator 2
 
 	| Instructions.GETFIELD3 ->
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.accumulator 3
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.accumulator 3
 
 	| Instructions.GETFIELD n | Instructions.GETFLOATFIELD n ->
-            vm.Vm.accumulator <- Utils.get_field vm.Vm.accumulator n;
+            vm.Vm.accumulator <- Conv.get_field vm.Vm.accumulator n;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
 	      
 	| Instructions.SETFIELD0 ->
-	    Utils.set_field vm.Vm.accumulator 0 (Vm.pop vm);
+	    Conv.set_field vm.Vm.accumulator 0 (Vm.pop vm);
             vm.Vm.accumulator <- Value.Int 0
 
 	| Instructions.SETFIELD1 ->
-	    Utils.set_field vm.Vm.accumulator 1 (Vm.pop vm);
+	    Conv.set_field vm.Vm.accumulator 1 (Vm.pop vm);
             vm.Vm.accumulator <- Value.Int 0
 
 	| Instructions.SETFIELD2 ->
-	    Utils.set_field vm.Vm.accumulator 2 (Vm.pop vm);
+	    Conv.set_field vm.Vm.accumulator 2 (Vm.pop vm);
             vm.Vm.accumulator <- Value.Int 0
 
 	| Instructions.SETFIELD3 ->
-	    Utils.set_field vm.Vm.accumulator 3 (Vm.pop vm);
+	    Conv.set_field vm.Vm.accumulator 3 (Vm.pop vm);
             vm.Vm.accumulator <- Value.Int 0
 
 	| Instructions.SETFIELD n | Instructions.SETFLOATFIELD n -> 
-            Utils.set_field vm.Vm.accumulator n (Vm.pop vm);
+            Conv.set_field vm.Vm.accumulator n (Vm.pop vm);
             vm.Vm.accumulator <- Value.Int 0;
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
@@ -566,19 +567,19 @@ let execute_step vm instruction =
             let size = match vm.Vm.accumulator with
               | Value.Block b ->
                  (match b.Value.tag with
-                    | Value.Raw_tag _ -> Obj.size (Utils.unbox_custom b.Value.data.(0))
+                    | Value.Raw_tag _ -> Obj.size (Conv.unbox_custom b.Value.data.(0))
                     | _ -> Array.length b.Value.data)
               | Value.Double_array a -> Array.length a
-	      | e -> Utils.fatal_error ("VECTLENGTH : "^(Utils.string_of_value e))
+	      | e -> Utils.fatal_error ("VECTLENGTH : "^(Conv.string_of_value e))
             in
 	      vm.Vm.accumulator <- Value.Int size
 		
 	| Instructions.GETVECTITEM | Instructions.GETSTRINGCHAR ->
-	    vm.Vm.accumulator <- Utils.get_field vm.Vm.accumulator (Utils.int_of_value (Vm.pop vm))
+	    vm.Vm.accumulator <- Conv.get_field vm.Vm.accumulator (Conv.int_of_value (Vm.pop vm))
 	    
 	| Instructions.SETVECTITEM | Instructions.SETSTRINGCHAR ->
-            let n = Utils.int_of_value (Vm.pop vm) in
-	      Utils.set_field vm.Vm.accumulator n (Vm.pop vm)
+            let n = Conv.int_of_value (Vm.pop vm) in
+	      Conv.set_field vm.Vm.accumulator n (Vm.pop vm)
 
 	(********************************************************************)    
 	(***************** Branches and conditional branches ****************)
@@ -602,10 +603,10 @@ let execute_step vm instruction =
 	| Instructions.SWITCH (sizes,tab) ->
             vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
             let index =
-              if Utils.is_block vm.Vm.accumulator then
-                (sizes land 0xFFFF) + Utils.get_block_tag_int vm.Vm.accumulator
+              if Conv.is_block vm.Vm.accumulator then
+                (sizes land 0xFFFF) + Conv.get_block_tag_int vm.Vm.accumulator
               else 
-                Utils.int_of_value vm.Vm.accumulator
+                Conv.int_of_value vm.Vm.accumulator
             in
               vm.Vm.code_pointer <- vm.Vm.code_pointer + tab.(index)
 		    
@@ -630,7 +631,7 @@ let execute_step vm instruction =
 	    vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 
 	| Instructions.POPTRAP ->
-	    vm.Vm.caml_trap_pointer <- Utils.unbox_stack_pointer (Vm.peek vm 1);
+	    vm.Vm.caml_trap_pointer <- Conv.unbox_stack_pointer (Vm.peek vm 1);
 	    for i = 1 to 4 do ignore (Vm.pop vm) done
 
 	| Instructions.RAISE -> 
@@ -838,13 +839,13 @@ let execute_step vm instruction =
 
 	| Instructions.EQ ->
 	    vm.Vm.accumulator <-
-	      if Utils.pequal vm.Vm.accumulator (Vm.pop vm)
+	      if Conv.pequal vm.Vm.accumulator (Vm.pop vm)
 	      then Value.Int 1
 	      else Value.Int 0
 
 	| Instructions.NEQ ->
 	    vm.Vm.accumulator <- 
-	      if Utils.pequal vm.Vm.accumulator (Vm.pop vm)
+	      if Conv.pequal vm.Vm.accumulator (Vm.pop vm)
 	      then Value.Int 0
 	      else Value.Int 1
 
@@ -873,15 +874,15 @@ let execute_step vm instruction =
 		 | _ -> Utils.fatal_error "wrong arguments GEINT")
 
 	| Instructions.ULTINT ->
-	    if Utils.ult (Utils.int_of_value vm.Vm.accumulator)
-			 (Utils.int_of_value (Vm.pop vm)) then
+	    if Conv.ult (Conv.int_of_value vm.Vm.accumulator)
+			 (Conv.int_of_value (Vm.pop vm)) then
 	       vm.Vm.accumulator <- Value.Int 1
 	     else 
 	       vm.Vm.accumulator <- Value.Int 0
 
 	| Instructions.UGEINT ->
-	    if not (Utils.ult (Utils.int_of_value vm.Vm.accumulator)
-			       (Utils.int_of_value (Vm.pop vm))) then
+	    if not (Conv.ult (Conv.int_of_value vm.Vm.accumulator)
+			       (Conv.int_of_value (Vm.pop vm))) then
 	       vm.Vm.accumulator <- Value.Int 1
 	     else 
 	       vm.Vm.accumulator <- Value.Int 0
@@ -928,24 +929,24 @@ let execute_step vm instruction =
                | _ -> Utils.fatal_error "wrong arguments BGEINT")
 	      
 	| Instructions.BULTINT (n,ofs) ->
-	    if Utils.ult n (Utils.int_of_value vm.Vm.accumulator) then
+	    if Conv.ult n (Conv.int_of_value vm.Vm.accumulator) then
               vm.Vm.code_pointer <- vm.Vm.code_pointer + 1 + ofs
 	    else
 	      vm.Vm.code_pointer <- vm.Vm.code_pointer + 2
 	    
 	| Instructions.BUGEINT (n,ofs) ->
-	    if not (Utils.ult n (Utils.int_of_value vm.Vm.accumulator)) then
+	    if not (Conv.ult n (Conv.int_of_value vm.Vm.accumulator)) then
               vm.Vm.code_pointer <- vm.Vm.code_pointer + 1 + ofs
 	    else
 	      vm.Vm.code_pointer <- vm.Vm.code_pointer + 2
 
 	| Instructions.OFFSETINT n ->
-	    vm.Vm.accumulator <- Value.Int (Utils.int_of_value vm.Vm.accumulator + n);
+	    vm.Vm.accumulator <- Value.Int (Conv.int_of_value vm.Vm.accumulator + n);
 	    vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 	    
 	| Instructions.OFFSETREF n ->
-	    Utils.set_field vm.Vm.accumulator 0
-	      (Value.Int (Utils.int_of_value (Utils.get_field vm.Vm.accumulator 0) + n));
+	    Conv.set_field vm.Vm.accumulator 0
+	      (Value.Int (Conv.int_of_value (Conv.get_field vm.Vm.accumulator 0) + n));
 	    vm.Vm.accumulator <- Value.Int 0;
 	    vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
 	    
@@ -960,36 +961,36 @@ let execute_step vm instruction =
 	    
 	| Instructions.GETMETHOD -> 
 	    vm.Vm.accumulator <- 
-	      Utils.get_field (Utils.get_field (Vm.peek vm 0) 0) (Utils.int_of_value vm.Vm.accumulator)
+	      Conv.get_field (Conv.get_field (Vm.peek vm 0) 0) (Conv.int_of_value vm.Vm.accumulator)
 	      
 	| Instructions.GETPUBMET (tag,_) ->
 	    Vm.push vm vm.Vm.accumulator;
 	    vm.Vm.accumulator <- Value.Int tag;
-	    let meths = Utils.get_field (Vm.peek vm 0) 0 in
+	    let meths = Conv.get_field (Vm.peek vm 0) 0 in
 	    let li = ref 3 in
-	    let hi = ref (Utils.int_of_value (Utils.get_field meths 0) * 2 + 1) in
+	    let hi = ref (Conv.int_of_value (Conv.get_field meths 0) * 2 + 1) in
 	      while !li < !hi do
 		let mi = (((!li + !hi) lsr 1) lor 1) in 
-		  if (Utils.int_of_value vm.Vm.accumulator) < (Utils.int_of_value (Utils.get_field meths mi)) then
+		  if (Conv.int_of_value vm.Vm.accumulator) < (Conv.int_of_value (Conv.get_field meths mi)) then
 		    hi := mi - 2
 		  else
 		    li := mi
 	      done;
-	      vm.Vm.accumulator <- Utils.get_field meths (!li - 1);
+	      vm.Vm.accumulator <- Conv.get_field meths (!li - 1);
 	    vm.Vm.code_pointer <- vm.Vm.code_pointer + 2;
     	      
 	| Instructions.GETDYNMET ->
-	    let meths = Utils.get_field (Vm.peek vm 0) 0 in
+	    let meths = Conv.get_field (Vm.peek vm 0) 0 in
 	    let li = ref 3 in
-	    let hi = ref (Utils.int_of_value (Utils.get_field meths 0) * 2 + 1) in
+	    let hi = ref (Conv.int_of_value (Conv.get_field meths 0) * 2 + 1) in
 	      while !li < !hi do
 		let mi = (((!li + !hi) lsr 1) lor 1) in 
-		  if (Utils.int_of_value vm.Vm.accumulator) < (Utils.int_of_value (Utils.get_field meths mi)) then
+		  if (Conv.int_of_value vm.Vm.accumulator) < (Conv.int_of_value (Conv.get_field meths mi)) then
 		    hi := mi - 2
 		  else
 		    li := mi
 	      done;
-	      vm.Vm.accumulator <- Utils.get_field meths (!li - 1);
+	      vm.Vm.accumulator <- Conv.get_field meths (!li - 1);
 
 	(**************************************************************************)
 	(******************** Debugging and machine control ***********************)

@@ -6,11 +6,12 @@
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
   
+module Conv = Conv_obj_value
 
 let ccall_failwith s = Utils.vm_error ("CCALL "^s)
 
 let obj_of_value v =
-  try Utils.obj_of_value v with Failure s -> ccall_failwith ("Obj_of_value: "^s)
+  try Conv.obj_of_value v with Failure s -> ccall_failwith ("Obj_of_value: "^s)
 
 let unavailable1 f _ _ = ccall_failwith ("primitive "^f^" not found")
 let unavailable2 f _ _ _ = ccall_failwith ("primitive "^f^" not found")
@@ -19,26 +20,26 @@ let unavailable4 f _ _ _ _ _ = ccall_failwith ("primitive "^f^" not found")
 let unavailable5 f _ _ _ _ _ _ = ccall_failwith ("primitive "^f^" not found")
 let unavailablen f _ _ _ = ccall_failwith ("primitive "^f^" not found")
  
-let warp1 f vm arg = Utils.value_of_obj (f (obj_of_value arg))
+let warp1 f vm arg = Conv.value_of_obj (f (obj_of_value arg))
 
-let warp2 f vm arg1 arg2 = Utils.value_of_obj (f (obj_of_value arg1) (obj_of_value arg2))
+let warp2 f vm arg1 arg2 = Conv.value_of_obj (f (obj_of_value arg1) (obj_of_value arg2))
 
-let warp3 f vm arg1 arg2 arg3 = Utils.value_of_obj (f (obj_of_value arg1)
+let warp3 f vm arg1 arg2 arg3 = Conv.value_of_obj (f (obj_of_value arg1)
                                                       (obj_of_value arg2)
                                                       (obj_of_value arg3))
 
-let warp4 f vm arg1 arg2 arg3 arg4 = Utils.value_of_obj (f (obj_of_value arg1)
+let warp4 f vm arg1 arg2 arg3 arg4 = Conv.value_of_obj (f (obj_of_value arg1)
                                                            (obj_of_value arg2)
 							   (obj_of_value arg3)
 							   (obj_of_value arg4))
 
-let warp5 f vm arg1 arg2 arg3 arg4 arg5 = Utils.value_of_obj (f (obj_of_value arg1)
+let warp5 f vm arg1 arg2 arg3 arg4 arg5 = Conv.value_of_obj (f (obj_of_value arg1)
                                                                 (obj_of_value arg2)
 								(obj_of_value arg3)
 								(obj_of_value arg4)
 								(obj_of_value arg5))
 
-let warpn f vm argv argc = Utils.value_of_obj (f (Array.map obj_of_value argv) argc)
+let warpn f vm argv argc = Conv.value_of_obj (f (Array.map obj_of_value argv) argc)
 
 let tbl1 : (string, Vm.virtual_machine -> Value.value -> Value.value) Hashtbl.t = Hashtbl.create 10
 let tbl2 : (string, Vm.virtual_machine -> Value.value -> Value.value -> Value.value) Hashtbl.t = Hashtbl.create 10

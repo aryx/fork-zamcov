@@ -6,7 +6,7 @@ TARGET=lib
 
 SRC= instructions.ml value.ml \
      vm.ml \
-     utils.ml \
+     utils.ml conv_obj_value.ml \
      interpreter.ml \
      ffi.ml
 

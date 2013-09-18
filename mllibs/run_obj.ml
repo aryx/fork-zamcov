@@ -6,10 +6,11 @@
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 
+module Conv = Conv_obj_value
 open Ffi
 
 let caml_obj_is_block vm arg =
-  if Utils.is_int arg then
+  if Conv.is_int arg then
     Value.Int 0
   else
     Value.Int 1
@@ -19,7 +20,7 @@ let caml_obj_is_int vm = function
   | _ -> Value.Int 0
 
 let caml_obj_tag vm v =
-  Value.Int (Utils.get_block_tag_int v)
+  Value.Int (Conv.get_block_tag_int v)
 
 let caml_obj_set_tag vm arg1 arg2 = match (arg1, arg2) with
   | Value.Block b, Value.Int i -> b.Value.tag <-
@@ -33,23 +34,23 @@ let caml_obj_set_tag vm arg1 arg2 = match (arg1, arg2) with
 
 let caml_obj_size vm arg = match arg with
   | Value.Block b -> 
-      Value.Int (Utils.block_size arg)
+      Value.Int (Conv.block_size arg)
   | _ -> ccall_failwith "caml_obj_size"
 
 let caml_obj_field vm arg1 arg2 = match (arg1, arg2) with
   | Value.Block b, Value.Int idx -> 
-      Utils.get_field arg1 idx
+      Conv.get_field arg1 idx
   | _ -> ccall_failwith "caml_obj_field"
 
 let caml_obj_set_field vm arg1 arg2 arg3 = match (arg1, arg2, arg3) with
   | Value.Block b, Value.Int idx, _ -> 
-      Utils.set_field arg1 idx arg3;
+      Conv.set_field arg1 idx arg3;
       Value.Int 0
   | _ -> ccall_failwith "caml_obj_field"
 
 let caml_obj_block vm arg1 arg2 = match (arg1, arg2) with
   | Value.Int tag, Value.Int size -> 
-      Utils.create_block size tag
+      Conv.create_block size tag
   | _ -> ccall_failwith "caml_obj_block"
 
 let caml_obj_dup vm = function

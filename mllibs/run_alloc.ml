@@ -6,6 +6,7 @@
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 
+module Conv = Conv_obj_value
 open Ffi
 
 let caml_alloc_dummy vm = function
@@ -30,7 +31,7 @@ let caml_update_dummy vm arg1 arg2 = match arg1, arg2 with
   | Value.Block _, Value.String _ -> (* TODO: verify *)
       ignore (ext_caml_update_dummy (Obj.repr arg1) (Obj.repr arg2));
       Value.Int 0
-  | _ -> ccall_failwith ("caml_update_dummy "^Utils.string_of_value arg2)
+  | _ -> ccall_failwith ("caml_update_dummy "^Conv.string_of_value arg2)
 
 let prims () =
   add1 "caml_alloc_dummy" caml_alloc_dummy;

@@ -27,7 +27,8 @@ let init_exec s =
   (* the CODE section of the exe *)
   let code_section = data.Bytecode_loader.code_section in
   (* the DATA section of the exe converted in a value type *)
-  let data_section = Utils.value_of_obj data.Bytecode_loader.data_section in
+  let data_section = 
+    Conv_obj_value.value_of_obj data.Bytecode_loader.data_section in
   (* the PRIM section of the exe *)
   let primitive_section = data.Bytecode_loader.primitive_section in 
   (* initialisation of C primitives using the information of the DLLS section

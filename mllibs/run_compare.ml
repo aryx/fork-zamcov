@@ -6,6 +6,7 @@
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 
+module Conv = Conv_obj_value
 open Ffi
 
 exception Break
@@ -31,7 +32,7 @@ let rec compare a b =
     match a, b with
       | Value.Block x, Value.Block y ->
           if x.Value.tag <> y.Value.tag then
-            Utils.get_block_tag_int a - Utils.get_block_tag_int b
+            Conv.get_block_tag_int a - Conv.get_block_tag_int b
           else
             compare_data compare x.Value.data y.Value.data
       | Value.Double_array x, Value.Double_array y ->
@@ -48,7 +49,7 @@ let rec compare a b =
       | Value.Float x, Value.Float y -> (Pervasives.compare : float -> float -> int) x y
       | Value.String x, Value.String y -> (Pervasives.compare : string -> string -> int) x y
       | Value.Custom o1, Value.Custom o2 -> Pervasives.compare o1 o2;
-      | _ -> ccall_failwith ("compare "^Utils.string_of_value a^" "^Utils.string_of_value b)
+      | _ -> ccall_failwith ("compare "^Conv.string_of_value a^" "^Conv.string_of_value b)
 
 let caml_compare vm arg1 arg2 =
   Value.Int (compare arg1 arg2)

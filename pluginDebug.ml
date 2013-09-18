@@ -8,6 +8,7 @@
 open Common
 
 module I = Instructions
+module Conv = Conv_obj_value
 
 (*****************************************************************************)
 (* Prelude *)
@@ -83,7 +84,7 @@ let step vm instruction =
   | I.APPTERM3 _
       ->
     (*depth := !depth + 1;*)
-    let dst = Utils.get_code vm.Vm.accumulator in
+    let dst = Conv.get_code vm.Vm.accumulator in
     pr (spf "%s: (%04d) -> %d (%s)" (String.make !depth ' ') 
           vm.Vm.code_pointer
           dst

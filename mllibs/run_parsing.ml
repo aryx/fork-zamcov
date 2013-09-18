@@ -6,6 +6,7 @@
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 
+module Conv = Conv_obj_value
 open Ffi
 
 let caml_parser_trace = ref false
@@ -66,36 +67,36 @@ let caml_parse_engine vm tables env cmd arg =
   and m       = ref 0
   and state1  = ref 0 in
   let save () =
-    Utils.set_field env env_sp (Value.Int !sp);
-    Utils.set_field env env_state (Value.Int !state);
-    Utils.set_field env env_errflag (Value.Int !errflag) in
+    Conv.set_field env env_sp (Value.Int !sp);
+    Conv.set_field env env_state (Value.Int !state);
+    Conv.set_field env env_errflag (Value.Int !errflag) in
   let restore () =
-    sp := Utils.int_of_value (Utils.get_field env env_sp);
-    state := Utils.int_of_value (Utils.get_field env env_state);
-    errflag := Utils.int_of_value (Utils.get_field env env_errflag) in
+    sp := Conv.int_of_value (Conv.get_field env env_sp);
+    state := Conv.int_of_value (Conv.get_field env env_state);
+    errflag := Conv.int_of_value (Conv.get_field env env_errflag) in
   let rec loop () =
-    n := read_short (Utils.unbox_string (Utils.get_field tables tables_defred)) !state;
+    n := read_short (Conv.unbox_string (Conv.get_field tables tables_defred)) !state;
     if !n <> 0 then
       reduce ()
-    else if Utils.int_of_value (Utils.get_field env env_curr_char) >= 0 then
+    else if Conv.int_of_value (Conv.get_field env env_curr_char) >= 0 then
       testshift ()
     else
       (save ();
        Value.Int parser_read_token)
   and testshift () =
-    n1 := read_short (Utils.unbox_string (Utils.get_field tables tables_sindex)) !state;
-    n2 := !n1 + Utils.int_of_value (Utils.get_field env env_curr_char);
-    if !n1 <> 0 && !n2 >= 0 && !n2 <= Utils.int_of_value (Utils.get_field tables tables_tablesize) &&
-       read_short (Utils.unbox_string (Utils.get_field tables tables_check)) !n2
-         = Utils.int_of_value (Utils.get_field env env_curr_char) then
+    n1 := read_short (Conv.unbox_string (Conv.get_field tables tables_sindex)) !state;
+    n2 := !n1 + Conv.int_of_value (Conv.get_field env env_curr_char);
+    if !n1 <> 0 && !n2 >= 0 && !n2 <= Conv.int_of_value (Conv.get_field tables tables_tablesize) &&
+       read_short (Conv.unbox_string (Conv.get_field tables tables_check)) !n2
+         = Conv.int_of_value (Conv.get_field env env_curr_char) then
        shift ()
     else begin
-      n1 := read_short (Utils.unbox_string (Utils.get_field tables tables_rindex)) !state;
-      n2 := !n1 + Utils.int_of_value (Utils.get_field env env_curr_char);
-      if !n1 <> 0 && !n2 >= 0 && !n2 <= Utils.int_of_value (Utils.get_field tables tables_tablesize) &&
-         read_short (Utils.unbox_string (Utils.get_field tables tables_check)) !n2
-           = Utils.int_of_value (Utils.get_field env env_curr_char) then
-        (n := read_short (Utils.unbox_string (Utils.get_field tables tables_table)) !n2;
+      n1 := read_short (Conv.unbox_string (Conv.get_field tables tables_rindex)) !state;
+      n2 := !n1 + Conv.int_of_value (Conv.get_field env env_curr_char);
+      if !n1 <> 0 && !n2 >= 0 && !n2 <= Conv.int_of_value (Conv.get_field tables tables_tablesize) &&
+         read_short (Conv.unbox_string (Conv.get_field tables tables_check)) !n2
+           = Conv.int_of_value (Conv.get_field env env_curr_char) then
+        (n := read_short (Conv.unbox_string (Conv.get_field tables tables_table)) !n2;
          reduce ())
       else
         if !errflag > 0 then
@@ -104,11 +105,11 @@ let caml_parse_engine vm tables env cmd arg =
           (save (); Value.Int parser_call_error_function)
     end
   and recover_loop () =
-    state1 := Utils.int_of_value (Utils.get_field (Utils.get_field env env_s_stack) !sp);
-    n1 := read_short (Utils.unbox_string (Utils.get_field tables tables_sindex)) !state1;
+    state1 := Conv.int_of_value (Conv.get_field (Conv.get_field env env_s_stack) !sp);
+    n1 := read_short (Conv.unbox_string (Conv.get_field tables tables_sindex)) !state1;
     n2 := !n1 + 256;
-    if !n1 <> 0 && !n2 >= 0 && !n2 <= Utils.int_of_value (Utils.get_field tables tables_tablesize) &&
-       read_short (Utils.unbox_string (Utils.get_field tables tables_check)) !n2
+    if !n1 <> 0 && !n2 >= 0 && !n2 <= Conv.int_of_value (Conv.get_field tables tables_tablesize) &&
+       read_short (Conv.unbox_string (Conv.get_field tables tables_check)) !n2
          = 256 then begin
       if !caml_parser_trace then
         output_string stderr ("Recovering in state "^string_of_int !state1^"\n");
@@ -116,7 +117,7 @@ let caml_parse_engine vm tables env cmd arg =
     end else begin
       if !caml_parser_trace then
         output_string stderr ("Discarding state "^string_of_int !state1^"\n");
-      if !sp <= Utils.int_of_value (Utils.get_field env env_stackbase) then begin
+      if !sp <= Conv.int_of_value (Conv.get_field env env_stackbase) then begin
         if !caml_parser_trace then
            output_string stderr ("No more states to discard\n");
         Value.Int parser_raise_parse_error
@@ -127,16 +128,16 @@ let caml_parse_engine vm tables env cmd arg =
     if !errflag < 3 then
       (errflag := 3; recover_loop ())
     else
-      if Utils.int_of_value (Utils.get_field env env_curr_char) = 0 then
+      if Conv.int_of_value (Conv.get_field env env_curr_char) = 0 then
         Value.Int parser_raise_parse_error
       else begin
         if !caml_parser_trace then
           output_string stderr ("Discarding last token\n");
-        Utils.set_field env env_curr_char (Value.Int (-1));
+        Conv.set_field env env_curr_char (Value.Int (-1));
         loop ()
       end
   and shift () =
-    Utils.set_field env env_curr_char (Value.Int (-1));
+    Conv.set_field env env_curr_char (Value.Int (-1));
     if !errflag > 0 then
       errflag := !errflag - 1;
     shift_recover ()
@@ -144,39 +145,39 @@ let caml_parse_engine vm tables env cmd arg =
     if !caml_parser_trace then
       output_string stderr
         ("State "^string_of_int !state1^": shift to state "^
-         string_of_int (read_short (Utils.unbox_string (Utils.get_field tables tables_table)) !n2)^"\n");
-    state := read_short (Utils.unbox_string (Utils.get_field tables tables_table)) !n2;
+         string_of_int (read_short (Conv.unbox_string (Conv.get_field tables tables_table)) !n2)^"\n");
+    state := read_short (Conv.unbox_string (Conv.get_field tables tables_table)) !n2;
     sp := !sp + 1;
-    if !sp < Utils.int_of_value (Utils.get_field env env_stacksize) then
+    if !sp < Conv.int_of_value (Conv.get_field env env_stacksize) then
       push ()
     else
       (save (); Value.Int parser_grow_stacks_1)
   and push () =
-    Utils.set_field (Utils.get_field env env_s_stack) !sp (Value.Int !state);
-    Utils.set_field (Utils.get_field env env_v_stack) !sp (Utils.get_field env env_lval);
-    Utils.set_field (Utils.get_field env env_symb_start_stack) !sp (Utils.get_field env env_symb_start);
-    Utils.set_field (Utils.get_field env env_symb_end_stack) !sp (Utils.get_field env env_symb_end);
+    Conv.set_field (Conv.get_field env env_s_stack) !sp (Value.Int !state);
+    Conv.set_field (Conv.get_field env env_v_stack) !sp (Conv.get_field env env_lval);
+    Conv.set_field (Conv.get_field env env_symb_start_stack) !sp (Conv.get_field env env_symb_start);
+    Conv.set_field (Conv.get_field env env_symb_end_stack) !sp (Conv.get_field env env_symb_end);
     loop ()
   and reduce () =
     if !caml_parser_trace then
       output_string stderr
         ("State "^string_of_int !state^": reduce by rule "^string_of_int !n^"\n");
-    m := read_short (Utils.unbox_string (Utils.get_field tables tables_len)) !n;
-    Utils.set_field env env_asp (Value.Int !sp);
-    Utils.set_field env env_rule_number (Value.Int !n);
-    Utils.set_field env env_rule_len (Value.Int !m);
+    m := read_short (Conv.unbox_string (Conv.get_field tables tables_len)) !n;
+    Conv.set_field env env_asp (Value.Int !sp);
+    Conv.set_field env env_rule_number (Value.Int !n);
+    Conv.set_field env env_rule_len (Value.Int !m);
     sp := !sp - !m + 1;
-    m := read_short (Utils.unbox_string (Utils.get_field tables tables_lhs)) !n;
-    state1 := Utils.int_of_value (Utils.get_field (Utils.get_field env env_s_stack) (!sp - 1));
-    n1 := read_short (Utils.unbox_string (Utils.get_field tables tables_gindex)) !m;
+    m := read_short (Conv.unbox_string (Conv.get_field tables tables_lhs)) !n;
+    state1 := Conv.int_of_value (Conv.get_field (Conv.get_field env env_s_stack) (!sp - 1));
+    n1 := read_short (Conv.unbox_string (Conv.get_field tables tables_gindex)) !m;
     n2 := !n1 + !state1;
-    if !n1 <> 0 && !n2 >= 0 && !n2 <= Utils.int_of_value (Utils.get_field tables tables_tablesize) &&
-       read_short (Utils.unbox_string (Utils.get_field tables tables_check)) !n2
+    if !n1 <> 0 && !n2 >= 0 && !n2 <= Conv.int_of_value (Conv.get_field tables tables_tablesize) &&
+       read_short (Conv.unbox_string (Conv.get_field tables tables_check)) !n2
          = !state1 then
-      state := read_short (Utils.unbox_string (Utils.get_field tables tables_table)) !n2
+      state := read_short (Conv.unbox_string (Conv.get_field tables tables_table)) !n2
     else
-      state := read_short (Utils.unbox_string (Utils.get_field tables tables_dgoto)) !m;
-    if !sp < Utils.int_of_value (Utils.get_field env env_stacksize) then
+      state := read_short (Conv.unbox_string (Conv.get_field tables tables_dgoto)) !m;
+    if !sp < Conv.int_of_value (Conv.get_field env env_stacksize) then
       semantic_action ()
     else
       (save (); Value.Int parser_grow_stacks_2)
@@ -187,20 +188,20 @@ let caml_parse_engine vm tables env cmd arg =
   match cmd with
   | Value.Int 0 ->
       state := 0;
-      sp := Utils.int_of_value (Utils.get_field env env_sp);
+      sp := Conv.int_of_value (Conv.get_field env env_sp);
       errflag := 0;
       loop ()
   | Value.Int 1 ->
       restore ();
-      if Utils.is_int arg then
-        (Utils.set_field env env_curr_char
-           (Utils.get_field (Utils.get_field tables tables_transl_const) (Utils.int_of_value arg));
-         Utils.set_field env env_lval (Value.Int 0))
+      if Conv.is_int arg then
+        (Conv.set_field env env_curr_char
+           (Conv.get_field (Conv.get_field tables tables_transl_const) (Conv.int_of_value arg));
+         Conv.set_field env env_lval (Value.Int 0))
       else
-        (Utils.set_field env env_curr_char
-           (Utils.get_field (Utils.get_field tables tables_transl_block)
-                            (Utils.get_block_tag_int arg));
-         Utils.set_field env env_lval (Utils.get_field arg 0));
+        (Conv.set_field env env_curr_char
+           (Conv.get_field (Conv.get_field tables tables_transl_block)
+                            (Conv.get_block_tag_int arg));
+         Conv.set_field env env_lval (Conv.get_field arg 0));
       if !caml_parser_trace then
         print_token tables state arg;
       testshift ()
@@ -215,14 +216,14 @@ let caml_parse_engine vm tables env cmd arg =
       semantic_action ()
   | Value.Int 4 ->
       restore ();
-      Utils.set_field (Utils.get_field env env_s_stack) !sp (Value.Int !state);
-      Utils.set_field (Utils.get_field env env_v_stack) !sp arg;
-      asp := Utils.int_of_value (Utils.get_field env env_asp);
-      Utils.set_field (Utils.get_field env env_symb_end_stack) !sp
-        (Utils.get_field (Utils.get_field env env_symb_end_stack) !asp);
+      Conv.set_field (Conv.get_field env env_s_stack) !sp (Value.Int !state);
+      Conv.set_field (Conv.get_field env env_v_stack) !sp arg;
+      asp := Conv.int_of_value (Conv.get_field env env_asp);
+      Conv.set_field (Conv.get_field env env_symb_end_stack) !sp
+        (Conv.get_field (Conv.get_field env env_symb_end_stack) !asp);
       if !sp > !asp then
-        Utils.set_field (Utils.get_field env env_symb_start_stack) !sp
-          (Utils.get_field (Utils.get_field env env_symb_start_stack) !asp);
+        Conv.set_field (Conv.get_field env env_symb_start_stack) !sp
+          (Conv.get_field (Conv.get_field env env_symb_start_stack) !asp);
       loop ()
   | _ -> ccall_failwith "error caml_parse_engine"
 

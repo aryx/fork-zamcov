@@ -6,6 +6,7 @@
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 
+module Conv = Conv_obj_value
 open Ffi
 
 (* TODO these values should be accessible by the C function caml_named_value *)
@@ -20,7 +21,7 @@ let caml_register_named_value vm arg1 arg2 = match arg1 with
         Hashtbl.replace named_values name arg2;
         Value.Int 0
       end
-  | e -> ccall_failwith ("error caml_register_named_value "^Utils.string_of_value e)
+  | e -> ccall_failwith ("error caml_register_named_value "^Conv.string_of_value e)
 
 let prims () =
   add2 "caml_register_named_value" caml_register_named_value

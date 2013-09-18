@@ -6,20 +6,21 @@
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 
+module Conv = Conv_obj_value
 open Ffi
 
 let caml_weak_set vm arg1 arg2 arg3 = match (arg1, arg2) with
   | (Value.Block tbl, Value.Int idx) -> (match arg3 with
-    | Value.Int 0 -> Weak.set (Obj.obj (Utils.unbox_custom tbl.Value.data.(0))) idx None
+    | Value.Int 0 -> Weak.set (Obj.obj (Conv.unbox_custom tbl.Value.data.(0))) idx None
     | Value.Block {Value.data = [|x|]; _} ->
-        Weak.set (Obj.obj (Utils.unbox_custom tbl.Value.data.(0))) idx (Some x)
+        Weak.set (Obj.obj (Conv.unbox_custom tbl.Value.data.(0))) idx (Some x)
     | _ -> ccall_failwith "error caml_weak_set");
     Value.Int 0
   | _ -> ccall_failwith "error caml_weak_set"
 
 let caml_weak_get vm arg1 arg2 = match (arg1, arg2) with
   | (Value.Block tbl, Value.Int idx) ->
-      (match Weak.get (Obj.obj (Utils.unbox_custom tbl.Value.data.(0))) idx with
+      (match Weak.get (Obj.obj (Conv.unbox_custom tbl.Value.data.(0))) idx with
         | None -> Value.Int 0
         | Some x ->
             Value.Block {
@@ -30,7 +31,7 @@ let caml_weak_get vm arg1 arg2 = match (arg1, arg2) with
 
 let caml_weak_get_copy vm arg1 arg2 = match (arg1, arg2) with
   | (Value.Block tbl, Value.Int idx) ->
-      (match Weak.get_copy (Obj.obj (Utils.unbox_custom tbl.Value.data.(0))) idx with
+      (match Weak.get_copy (Obj.obj (Conv.unbox_custom tbl.Value.data.(0))) idx with
         | None -> Value.Int 0
         | Some (Value.Block x) ->
             Value.Block {
@@ -42,7 +43,7 @@ let caml_weak_get_copy vm arg1 arg2 = match (arg1, arg2) with
 
 let caml_weak_check vm arg1 arg2 = match (arg1, arg2) with
   | (Value.Block tbl, Value.Int idx) ->
-      (match Weak.check (Obj.obj (Utils.unbox_custom tbl.Value.data.(0))) idx with
+      (match Weak.check (Obj.obj (Conv.unbox_custom tbl.Value.data.(0))) idx with
         | true -> Value.Int 1
         | false -> Value.Int 0)
   | _ -> ccall_failwith "error caml_weak_check"
