@@ -22,7 +22,10 @@ module I = Instructions
 let debug = ref false
 let name = ref ""
 let debug_c = ref stdout
+
 let prims = ref (Array.make 0 "")
+
+let depth = ref 0
 
 let (hdebug_events: (int, Instruct.debug_event) Hashtbl.t) = 
   Hashtbl.create 101
@@ -52,10 +55,6 @@ let print_location_of_pc pc =
 let step vm instruction =
   (* print debug infomations *)
   if !debug then begin
-      (* print the execution trace *)
-    output_string !debug_c (string_of_int vm.Vm.code_pointer^"\t--> executing "^
-                              Instructions.string_of_instructions !prims instruction^"\n");
-    flush !debug_c;
     (* Interpreter.dump_state vm; *)
     (* Interpreter.dump_env vm.environment; *)
     (* Interpreter.dump_stack vm.stack vm.stack_pointer; *)
@@ -68,11 +67,10 @@ let step vm instruction =
   | I.C_CALL5 _
   | I.C_CALLN _
     ->
-    pr (spf "%d\t--> executing %s" vm.Vm.code_pointer
-          (Instructions.string_of_instructions 
-             !prims instruction));
-    print_location_of_pc 
-      ((vm.Vm.code_pointer) - 2);
+    pr (spf "%s: (%04d) %s" (String.make !depth ' ') vm.Vm.code_pointer
+          (Instructions.string_of_instructions !prims instruction));
+   print_location_of_pc (vm.Vm.code_pointer);
+    ()
 
   | I.APPLY _
   | I.APPLY1
@@ -80,24 +78,22 @@ let step vm instruction =
   | I.APPLY3
 
   | I.APPTERM _
+  | I.APPTERM1 _
   | I.APPTERM2 _
   | I.APPTERM3 _
       ->
+    (*depth := !depth + 1;*)
     let dst = Utils.get_code vm.Vm.accumulator in
-    pr (spf "%d --> %d (%s)"
-          vm.Vm.code_pointer 
+    pr (spf "%s: (%04d) -> %d (%s)" (String.make !depth ' ') 
+          vm.Vm.code_pointer
           dst
           (Instructions.string_of_instructions !prims instruction));
-    print_location_of_pc 
-      dst (*(vm.Vm.code_pointer)*);
-    
-    
-
+    print_location_of_pc (vm.Vm.code_pointer);
+    print_location_of_pc dst (*(vm.Vm.code_pointer)*);
+    ()
   | I.RETURN _ ->
-    pr (spf "%d\t--> executing %s" vm.Vm.code_pointer
-          (Instructions.string_of_instructions 
-             !prims instruction));
-    
+    (*depth := !depth -1;*)
+    ()
   | _ -> ()
   )
   
