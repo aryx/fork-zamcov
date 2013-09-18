@@ -915,41 +915,47 @@ let execute_step vm instruction =
     | Instructions.BEQ (temp,n) -> 
       vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
       (match vm.Vm.accumulator, temp with 
-      | Value.Int i1, i2 when i1 = i2 -> vm.Vm.code_pointer <- vm.Vm.code_pointer + n
+      | Value.Int i1, i2 when i1 = i2 -> 
+        vm.Vm.code_pointer <- vm.Vm.code_pointer + n
       | _ -> vm.Vm.code_pointer <- vm.Vm.code_pointer + 1)
 
     | Instructions.BNEQ (temp,n) ->
       vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
       (match vm.Vm.accumulator, temp with 
-      | Value.Int i1, i2 when i1 <> i2 -> vm.Vm.code_pointer <- vm.Vm.code_pointer + n
+      | Value.Int i1, i2 when i1 <> i2 -> 
+        vm.Vm.code_pointer <- vm.Vm.code_pointer + n
       | Value.Int _, _ -> vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
       | _ -> vm.Vm.code_pointer <- vm.Vm.code_pointer + n)
 	
     | Instructions.BLTINT (temp,n) ->
       vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
       (match vm.Vm.accumulator, temp with 
-      | Value.Int i1, i2 when i2 < i1 -> vm.Vm.code_pointer <- vm.Vm.code_pointer + n
+      | Value.Int i1, i2 when i2 < i1 -> 
+        vm.Vm.code_pointer <- vm.Vm.code_pointer + n
       | Value.Int _, _ -> vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
       | _ -> Vm.fatal_error "wrong arguments BLTINT")
 	
     | Instructions.BLEINT (temp,n) ->
       vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
       (match vm.Vm.accumulator, temp with 
-      | Value.Int i1, i2 when i2 <= i1 -> vm.Vm.code_pointer <- vm.Vm.code_pointer + n
+      | Value.Int i1, i2 when i2 <= i1 -> 
+        vm.Vm.code_pointer <- vm.Vm.code_pointer + n
       | Value.Int _, _ -> vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
       | _ -> Vm.fatal_error "wrong arguments BLEINT")
 	
     | Instructions.BGTINT (temp,n) ->
       vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
       (match vm.Vm.accumulator, temp with 
-      | Value.Int i1, i2 when i2 > i1 -> vm.Vm.code_pointer <- vm.Vm.code_pointer + n
+      | Value.Int i1, i2 when i2 > i1 -> 
+        vm.Vm.code_pointer <- vm.Vm.code_pointer + n
       | Value.Int _, _ -> vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
       | _ -> Vm.fatal_error "wrong arguments BGTINT ")
 	
     | Instructions.BGEINT (temp,n) ->
       vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
       (match vm.Vm.accumulator, temp with 
-      | Value.Int i1, i2 when i2 >= i1 -> vm.Vm.code_pointer <- vm.Vm.code_pointer + n
+      | Value.Int i1, i2 when i2 >= i1 -> 
+        vm.Vm.code_pointer <- vm.Vm.code_pointer + n
       | Value.Int _, _ -> vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
       | _ -> Vm.fatal_error "wrong arguments BGEINT")
 	
