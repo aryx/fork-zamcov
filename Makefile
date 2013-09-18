@@ -91,7 +91,7 @@ clean::
 	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i clean; done 
 
 depend::
-	ocamldep *.ml *.mli > .depend
+	ocamldep $(INCLUDES) *.ml *.mli > .depend
 	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i depend; done
 
 Makefile.config:    
