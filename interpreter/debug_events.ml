@@ -36,6 +36,9 @@ let parse_debug_section n xs =
       let pos = ev.Instruct.ev_pos in
       (* relocate *)
       let final = (pos + orig) / 4 in
+      if (pos + orig) mod 4 <> 0
+      then failwith (spf "event should be 4-bytes aligned, got %d + %d"
+                       pos orig);
       arr.(final) <- Some ev;
     );
   );
