@@ -1,13 +1,17 @@
 (***********************************************************************)
 (*                              Project Couverture                     *)
 (*                                                                     *)
-(* file: vm.ml                                                         *)
 (* authors: Adrien Jonquet, Philippe Wang, Alexis Darrasse             *)
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 
-(* size of the stack of the execution enviornment *)
-let stack_size = 1024*512*2
+(*****************************************************************************)
+(* Prelude *)
+(*****************************************************************************)
+
+(*****************************************************************************)
+(* Types *)
+(*****************************************************************************)
 
 type prim_table = {
   tbl1 : (virtual_machine -> Value.value -> Value.value) array;
@@ -32,6 +36,13 @@ and virtual_machine = {
   prim_table : prim_table;
 }
 
+(* size of the stack of the execution enviornment *)
+let stack_size = 1024*512*2
+
+(*****************************************************************************)
+(* Helpers *)
+(*****************************************************************************)
+
 let exec = ref ""
 let args : string array ref = ref [||]
 
@@ -52,6 +63,10 @@ let assign vm i x =
     | n -> aux (List.tl l) (List.hd l::ac) (n-1) in
   vm.stack <- aux vm.stack [] i
 
+(*****************************************************************************)
+(* Main entry point *)
+(*****************************************************************************)
+
 let run vm =
   (* the main loop of interpretation *)
   (* exit when all the CODE section has been read *)
@@ -59,7 +74,7 @@ let run vm =
   while vm.code_pointer < code_size do
     let instruction = vm.code.(vm.code_pointer) in
       vm.plugin_step vm instruction;
-	(* interpretation of the current instruction *)
+      (* interpretation of the current instruction *)
       vm.execute_step vm instruction;
   done
 
@@ -73,6 +88,7 @@ let init name code global execute_step plugin_step prim_table = {
   code_pointer = 0;
   caml_trap_pointer = None;
   global_data = global;
+
   plugin_step = plugin_step;
   execute_step = execute_step;
   prim_table = prim_table
