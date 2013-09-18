@@ -13,8 +13,8 @@ SRC1= \
  other_nums.ml \
  other_str.ml \
  other_unix.ml \
+ other_threads.ml \
 
-# other_threads.ml \
 # other_graphics.ml \
 
 SRC2= \
@@ -89,13 +89,13 @@ runtime_%.ml: %.c
 %.c:
 	tar --strip-components=2 -zxf ../$(OCAMLTAR) ocaml-$(OCAMLVERSION)/byterun/$*.c
 
-other_unix.ml: otherlibs/unix
-other_nums.ml: otherlibs/num
-other_str.ml: otherlibs/str
-other_threads.ml: otherlibs/systhreads
-other_graphics.ml: otherlibs/graph
-other_dbm.ml: otherlibs/dbm
-other_bigarray.ml: otherlibs/bigarray
+other_unix.ml: otherlibs/unix unix
+other_nums.ml: otherlibs/num num
+other_str.ml: otherlibs/str str
+other_threads.ml: otherlibs/systhreads systhreads
+other_graphics.ml: otherlibs/graph graph
+other_dbm.ml: otherlibs/dbm dbm
+other_bigarray.ml: otherlibs/bigarray bigarray
 
 otherlibs/%: ../$(OCAMLTAR)
 	tar --strip-components=1 -zxf $< ocaml-$(OCAMLVERSION)/otherlibs/$*

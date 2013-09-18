@@ -10,8 +10,8 @@ SRC1= \
  lib_nums.ml \
  lib_str.ml \
  lib_unix.ml \
+ lib_threads.ml \
 
-# lib_threads.ml \
 # lib_graphics.ml \
 
 SRC2= \

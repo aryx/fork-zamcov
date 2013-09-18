@@ -30,7 +30,7 @@ OCAMLCOMPILERCMA=ocamlcommon.cma
 #------------------------------------------------------------------------------
 # Main variables
 #------------------------------------------------------------------------------
-SYSLIBS=nums.cma bigarray.cma str.cma unix.cma
+SYSLIBS=nums.cma bigarray.cma str.cma unix.cma   threads.cma
 
 SYSLIBS+=$(OCAMLCOMPILERCMA)
 

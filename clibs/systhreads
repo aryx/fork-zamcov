@@ -8,3 +8,4 @@ caml_thread_sigmask
 caml_thread_uncaught_exception
 caml_thread_yield
 caml_wait_signal
+caml_mutex_new
