@@ -49,3 +49,4 @@ clibs/otherlibs/*
 /clibs/runtime_sys.ml
 /clibs/runtime_terminfo.ml
 /clibs/runtime_weak.ml
+/tests/use_commons
