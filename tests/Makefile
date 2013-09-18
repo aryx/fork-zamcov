@@ -1,4 +1,4 @@
-all: foo use_nat
+all: foo use_nat oo
 #use_commons
 
 OCAMLC=ocamlc -g
@@ -9,6 +9,9 @@ foo: foo.ml
 
 use_nat: use_nat.ml
 	$(OCAMLC) -o use_nat use_nat.ml nums.cma
+
+oo: oo.ml
+	$(OCAMLC) -o $@ $^
 
 test:
 	$(ZAM) foo
