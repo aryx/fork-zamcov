@@ -18,7 +18,8 @@ let cmd_args = []
   - Interpretation of all the instructions of the CODE section
 *)
 let init_exec s =
-  if not (Sys.file_exists s) then Utils.fatal_error ("cannot find file "^s);
+  if not (Sys.file_exists s) 
+  then failwith ("cannot find file "^s);
   Vm.exec := s;
   Vm.args := 
     Array.sub Sys.argv !Arg.current (Array.length Sys.argv - !Arg.current);

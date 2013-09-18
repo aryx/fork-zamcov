@@ -64,6 +64,15 @@ let assign vm i x =
     | n -> aux (List.tl l) (List.hd l::ac) (n-1) in
   vm.stack <- aux vm.stack [] i
 
+exception Fatal_error of string
+exception Vm_error of string
+
+let fatal_error msg =
+  raise (Fatal_error msg)
+
+let vm_error msg =
+  raise (Vm_error msg)
+
 (*****************************************************************************)
 (* Main entry point *)
 (*****************************************************************************)

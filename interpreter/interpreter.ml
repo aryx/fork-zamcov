@@ -29,7 +29,7 @@ let rec string_of_global_data gb =
     !s
 
 let raise_our_exception vm e = match vm.Vm.caml_trap_pointer with
-  | None -> Utils.fatal_error ("exception "^Conv.string_of_exception e)
+  | None -> Vm.fatal_error ("exception "^Conv.string_of_exception e)
   | Some p ->
       vm.Vm.stack <- !p;
       vm.Vm.code_pointer <- Conv.get_code (Vm.pop vm);
@@ -49,10 +49,10 @@ let raise_exception vm e =
 	raise_our_exception vm v
       end
     done;
-    Utils.vm_error ("unknown exception "^Conv.string_of_exception v)
+    Vm.vm_error ("unknown exception "^Conv.string_of_exception v)
 
 let not_yet_implemented : string -> unit = fun s ->
-  Utils.fatal_error (s ^ " is not yet implemented\n")
+  Vm.fatal_error (s ^ " is not yet implemented\n")
 
 (*****************************************************************************)
 (* Dumpers *)
@@ -590,7 +590,7 @@ let execute_step vm instruction =
           | Value.Raw_tag _ -> Obj.size (Conv.unbox_custom b.Value.data.(0))
           | _ -> Array.length b.Value.data)
         | Value.Double_array a -> Array.length a
-	| e -> Utils.fatal_error ("VECTLENGTH : "^(Conv.string_of_value e))
+	| e -> Vm.fatal_error ("VECTLENGTH : "^(Conv.string_of_value e))
       in
       vm.Vm.accumulator <- Value.Int size
 	
@@ -636,7 +636,7 @@ let execute_step vm instruction =
 	  Value.Int i -> 
 	    if i = 0 then Value.Int 1
 	    else Value.Int 0
-	| _ -> Utils.fatal_error "error BOOLNOT")
+	| _ -> Vm.fatal_error "error BOOLNOT")
 	
     (* ------------------------------------------------------------------ *)
     (* Exceptions *)
@@ -785,25 +785,25 @@ let execute_step vm instruction =
       vm.Vm.accumulator <-
 	(match vm.Vm.accumulator with 
 	  Value.Int i -> Value.Int (-i)
-	| _ -> Utils.fatal_error "wrong arguments NEGINT")
+	| _ -> Vm.fatal_error "wrong arguments NEGINT")
 	
     | Instructions.ADDINT ->
       vm.Vm.accumulator <-
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	  Value.Int i1, Value.Int i2 -> Value.Int (i1 + i2)
-	| _ -> Utils.fatal_error "wrong arguments ADDINT")
+	| _ -> Vm.fatal_error "wrong arguments ADDINT")
 	
     | Instructions.SUBINT ->  
       vm.Vm.accumulator <-
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	  Value.Int i1, Value.Int i2 -> Value.Int (i1 - i2)
-	| _ -> Utils.fatal_error "wrong arguments SUBINT")
+	| _ -> Vm.fatal_error "wrong arguments SUBINT")
 	
     | Instructions.MULINT ->  
       vm.Vm.accumulator <-
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	  Value.Int i1, Value.Int i2 -> Value.Int (i1 * i2)
-	| _ -> Utils.fatal_error "wrong arguments MULINT")
+	| _ -> Vm.fatal_error "wrong arguments MULINT")
 
     | Instructions.DIVINT ->
       vm.Vm.accumulator <-
@@ -811,7 +811,7 @@ let execute_step vm instruction =
 	  Value.Int i1, Value.Int i2 -> 
 	    (try Value.Int (i1 / i2)
 	     with Division_by_zero -> raise_exception vm Division_by_zero);
-	| _ -> Utils.fatal_error "wrong arguments DIVINT")
+	| _ -> Vm.fatal_error "wrong arguments DIVINT")
 	
     | Instructions.MODINT ->
       vm.Vm.accumulator <-
@@ -819,43 +819,43 @@ let execute_step vm instruction =
 	  Value.Int i1, Value.Int i2 -> 
 	    (try Value.Int (i1 mod i2)
 	     with Division_by_zero -> raise_exception vm Division_by_zero);
-	| _ -> Utils.fatal_error "wrong arguments MODINT")
+	| _ -> Vm.fatal_error "wrong arguments MODINT")
 	
     | Instructions.ANDINT ->
       vm.Vm.accumulator <-
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	  Value.Int i1, Value.Int i2 -> Value.Int (i1 land i2)
-	| _ -> Utils.fatal_error "wrong arguments ANDINT")
+	| _ -> Vm.fatal_error "wrong arguments ANDINT")
 
     | Instructions.ORINT -> 
       vm.Vm.accumulator <-
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	  Value.Int i1, Value.Int i2 -> Value.Int (i1 lor i2)
-	| _ -> Utils.fatal_error "wrong arguments ORINT")
+	| _ -> Vm.fatal_error "wrong arguments ORINT")
 	
     | Instructions.XORINT ->
       vm.Vm.accumulator <-
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	  Value.Int i1, Value.Int i2 -> Value.Int (i1 lxor i2)
-	| _ -> Utils.fatal_error "wrong arguments XORINT")
+	| _ -> Vm.fatal_error "wrong arguments XORINT")
 
     | Instructions.LSLINT ->
       vm.Vm.accumulator <-
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	  Value.Int i1, Value.Int i2 -> Value.Int (i1 lsl i2)
-	| _ -> Utils.fatal_error "wrong arguments LSLINT")
+	| _ -> Vm.fatal_error "wrong arguments LSLINT")
 
     | Instructions.LSRINT ->
       vm.Vm.accumulator <-
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	  Value.Int i1, Value.Int i2 -> Value.Int (i1 lsr i2)
-	| _ -> Utils.fatal_error "wrong arguments LSRINT")
+	| _ -> Vm.fatal_error "wrong arguments LSRINT")
 
     | Instructions.ASRINT ->
       vm.Vm.accumulator <-
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	  Value.Int i1, Value.Int i2 -> Value.Int (i1 asr i2)
-	| _ -> Utils.fatal_error "wrong arguments ASRINT")
+	| _ -> Vm.fatal_error "wrong arguments ASRINT")
 
     | Instructions.EQ ->
       vm.Vm.accumulator <-
@@ -873,25 +873,25 @@ let execute_step vm instruction =
       vm.Vm.accumulator <- 
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	| Value.Int i1, Value.Int i2 -> if i1 < i2 then Value.Int 1 else Value.Int 0
-	| _ -> Utils.fatal_error "wrong arguments LTINT")
+	| _ -> Vm.fatal_error "wrong arguments LTINT")
 
     | Instructions.LEINT ->
       vm.Vm.accumulator <- 
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	| Value.Int i1, Value.Int i2 -> if i1 <= i2 then Value.Int 1 else Value.Int 0
-	| _ -> Utils.fatal_error "wrong arguments LEINT")
+	| _ -> Vm.fatal_error "wrong arguments LEINT")
 
     | Instructions.GTINT ->
       vm.Vm.accumulator <- 
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	| Value.Int i1, Value.Int i2 -> if i1 > i2 then Value.Int 1 else Value.Int 0
-	| _ -> Utils.fatal_error "wrong arguments GTINT")
+	| _ -> Vm.fatal_error "wrong arguments GTINT")
 
     | Instructions.GEINT ->
       vm.Vm.accumulator <- 
 	(match vm.Vm.accumulator, Vm.pop vm with 
 	| Value.Int i1, Value.Int i2 -> if i1 >= i2 then Value.Int 1 else Value.Int 0
-	| _ -> Utils.fatal_error "wrong arguments GEINT")
+	| _ -> Vm.fatal_error "wrong arguments GEINT")
 
     | Instructions.ULTINT ->
       if Conv.ult (Conv.int_of_value vm.Vm.accumulator)
@@ -925,28 +925,28 @@ let execute_step vm instruction =
       (match vm.Vm.accumulator, temp with 
       | Value.Int i1, i2 when i2 < i1 -> vm.Vm.code_pointer <- vm.Vm.code_pointer + n
       | Value.Int _, _ -> vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
-      | _ -> Utils.fatal_error "wrong arguments BLTINT")
+      | _ -> Vm.fatal_error "wrong arguments BLTINT")
 	
     | Instructions.BLEINT (temp,n) ->
       vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
       (match vm.Vm.accumulator, temp with 
       | Value.Int i1, i2 when i2 <= i1 -> vm.Vm.code_pointer <- vm.Vm.code_pointer + n
       | Value.Int _, _ -> vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
-      | _ -> Utils.fatal_error "wrong arguments BLEINT")
+      | _ -> Vm.fatal_error "wrong arguments BLEINT")
 	
     | Instructions.BGTINT (temp,n) ->
       vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
       (match vm.Vm.accumulator, temp with 
       | Value.Int i1, i2 when i2 > i1 -> vm.Vm.code_pointer <- vm.Vm.code_pointer + n
       | Value.Int _, _ -> vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
-      | _ -> Utils.fatal_error "wrong arguments BGTINT ")
+      | _ -> Vm.fatal_error "wrong arguments BGTINT ")
 	
     | Instructions.BGEINT (temp,n) ->
       vm.Vm.code_pointer <- vm.Vm.code_pointer + 1;
       (match vm.Vm.accumulator, temp with 
       | Value.Int i1, i2 when i2 >= i1 -> vm.Vm.code_pointer <- vm.Vm.code_pointer + n
       | Value.Int _, _ -> vm.Vm.code_pointer <- vm.Vm.code_pointer + 1
-      | _ -> Utils.fatal_error "wrong arguments BGEINT")
+      | _ -> Vm.fatal_error "wrong arguments BGEINT")
 	
     | Instructions.BULTINT (n,ofs) ->
       if Conv.ult n (Conv.int_of_value vm.Vm.accumulator) then
@@ -1023,7 +1023,7 @@ let execute_step vm instruction =
     | Instructions.BREAK ->  not_yet_implemented "BREAK"
       
     | Instructions.Param n -> 
-      Utils.fatal_error (spf "error Not an instruction Parameter %d" n)
+      Vm.fatal_error (spf "error Not an instruction Parameter %d" n)
   )
   with
   | Exception_raised -> ()

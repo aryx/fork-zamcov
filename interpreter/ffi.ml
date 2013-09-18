@@ -8,7 +8,7 @@
   
 module Conv = Conv_obj_value
 
-let ccall_failwith s = Utils.vm_error ("CCALL "^s)
+let ccall_failwith s = Vm.vm_error ("CCALL "^s)
 
 let obj_of_value v =
   try Conv.obj_of_value v with Failure s -> ccall_failwith ("Obj_of_value: "^s)

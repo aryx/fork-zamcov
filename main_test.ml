@@ -34,7 +34,7 @@ let action = ref ""
  *)
 let main_action file args =
   if not (Sys.file_exists file) 
-  then Utils.fatal_error ("cannot find file "^file);
+  then failwith ("cannot find file "^file);
 
   Vm.exec := file;
   Vm.args := Array.of_list args;

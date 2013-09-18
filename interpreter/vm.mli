@@ -43,6 +43,12 @@ val peek : virtual_machine -> int -> Value.value
 
 val assign : virtual_machine -> int -> Value.value -> unit
 
+exception Fatal_error of string
+exception Vm_error of string
+
+val fatal_error: string -> 'a
+val vm_error: string -> 'a
+
 val run : virtual_machine -> unit
 
 val init :

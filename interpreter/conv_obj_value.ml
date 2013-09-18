@@ -27,7 +27,8 @@ let get_block_tag_int = function
   | Value.Float _ -> Obj.double_tag
   | Value.String _ -> Obj.string_tag
   | Value.Custom _ -> Obj.custom_tag
-  | Value.Int _ | Value.Code_pointer _ | Value.Stack_pointer _ -> vm_error "error get_block_tag_int : not a block"
+  | Value.Int _ | Value.Code_pointer _ | Value.Stack_pointer _ -> 
+    Vm.vm_error "error get_block_tag_int : not a block"
 
 let string_of_tag = function
   | Value.Zero_tag -> "Zero"
@@ -53,38 +54,38 @@ let string_of_value = function
 
 let unbox_string = function
   | Value.String s -> s
-  | _ -> vm_error "unbox_string"
+  | _ -> Vm.vm_error "unbox_string"
 
 (* get the value of a float from a block *)
 let rec unbox_float = function
   | Value.Float f1 -> f1
-  | f -> vm_error ("error unbox_float "^(string_of_value f))
+  | f -> Vm.vm_error ("error unbox_float "^(string_of_value f))
 
 let unbox_custom = function
   | Value.Custom o -> o
-  | _ -> vm_error "unbox_custom"
+  | _ -> Vm.vm_error "unbox_custom"
 
 let unbox_stack_pointer = function
   | Value.Stack_pointer p -> p
-  | _ -> vm_error "unbox_stack_pointer"
+  | _ -> Vm.vm_error "unbox_stack_pointer"
 
 let unbox_block = function
   | Value.Block b -> b
-  | _ -> vm_error "unbox_block"
+  | _ -> Vm.vm_error "unbox_block"
 
 let unbox_closure = function
   | Value.Closure c -> c
-  | _ -> vm_error "unbox_closure"
+  | _ -> Vm.vm_error "unbox_closure"
 
 let rec int_of_value v =
   match v with 
     | Value.Int i -> i
-    | v -> vm_error ("error int_of_value "^(string_of_value v))
+    | v -> Vm.vm_error ("error int_of_value "^(string_of_value v))
 
 let float_of_value v =
   match v with 
     | Value.Float f -> f
-    | v -> vm_error ("error float_of_value "^(string_of_value v))
+    | v -> Vm.vm_error ("error float_of_value "^(string_of_value v))
 
 let string_of_value_array vect =
   Array.fold_left (fun r e -> r ^ string_of_value e ^ " ; ") "[| " vect  ^ " |]"
@@ -109,30 +110,30 @@ let block_size = function
   | Value.Block x -> Array.length x.Value.data
   | Value.Double_array a -> Array.length a
   | Value.Closure c -> 2*c.Value.nfuncs + Array.length c.Value.vars - 1
-  | value -> vm_error ("error block_size : "^string_of_value value)
+  | value -> Vm.vm_error ("error block_size : "^string_of_value value)
  
 let get_block_tag = function
   | Value.Block b -> b.Value.tag
-  | _ -> vm_error "error get_block_tag : not a Block"
+  | _ -> Vm.vm_error "error get_block_tag : not a Block"
  
 let set_block_tag block tag =  
   match block with 
     | Value.Block b -> b.Value.tag <- tag
-    | _ -> vm_error "error set_block_tag"
+    | _ -> Vm.vm_error "error set_block_tag"
 
 let get_data = function
     Value.Block b -> b.Value.data
-  | _ -> vm_error "get_data"
+  | _ -> Vm.vm_error "get_data"
 
 let get_parent = function
   | Value.Infix i -> i.Value.parent
-  | _ -> vm_error "get parent"
+  | _ -> Vm.vm_error "get parent"
 
 let rec get_code = function
   | Value.Code_pointer i -> i
   | Value.Closure c -> get_code c.Value.funcs.(0)
   | Value.Infix i -> i.Value.icode
-  | value -> vm_error ("error get_code : "^(string_of_value value))
+  | value -> Vm.vm_error ("error get_code : "^(string_of_value value))
 	
 let rec obj_of_block b =
   let seen = ref [] in
@@ -141,7 +142,7 @@ let rec obj_of_block b =
     | t' ->
         let t = int_of_tag t' in
         let d = b.Value.data in
-        if t >= Obj.no_scan_tag then vm_error "error obj_of_value not completely implemented";
+        if t >= Obj.no_scan_tag then Vm.vm_error "error obj_of_value not completely implemented";
         let res = Obj.new_block t (Array.length d) in
         seen := (d, res)::!seen;
         for i = 0 to Array.length d - 1 do
@@ -158,15 +159,15 @@ let rec obj_of_block b =
   aux b
 and obj_of_value = function
   | Value.Code_pointer _ 
-  | Value.Stack_pointer _ -> vm_error "obj_of_value of pointer"
+  | Value.Stack_pointer _ -> Vm.vm_error "obj_of_value of pointer"
   | Value.Int n -> Obj.repr n
   | Value.Float f -> Obj.repr f
   | Value.String s -> Obj.repr s
   | Value.Double_array a -> Obj.repr a
   | Value.Custom o -> o
   | Value.Block b -> obj_of_block b
-  | Value.Closure _ -> vm_error "obj_of_value: closures not yet handled"
-  | Value.Infix _ -> vm_error "obj_of_value: infix not yet handled"
+  | Value.Closure _ -> Vm.vm_error "obj_of_value: closures not yet handled"
+  | Value.Infix _ -> Vm.vm_error "obj_of_value: infix not yet handled"
 
 (*****************************************************************************)
 (* Obj -> Value *)
@@ -233,13 +234,13 @@ let value_of_obj o =
 (* TODO review & test *)
 let set_field block idx v =
   match block, v with
-    | Value.Infix _, _ -> vm_error "set_field Infix"
+    | Value.Infix _, _ -> Vm.vm_error "set_field Infix"
     | Value.Block b, _ -> b.Value.data.(idx) <- v
     | Value.Double_array a, Value.Float f -> a.(idx) <- f
     | Value.String s, Value.Int i when i >= 0 -> String.set s idx (char_of_int (i mod 256))
     | Value.String s, Value.Int i when i mod 256 = 0 -> String.set s idx '\000'
     | Value.String s, Value.Int i -> String.set s idx (char_of_int ((i mod 256) + 256))
-    | v, _ -> vm_error ("can't set_field of "^(string_of_value v))
+    | v, _ -> Vm.vm_error ("can't set_field of "^(string_of_value v))
 
 let create_block size tag = (* TODO deal with known tags *)
   assert (size >= 0);
@@ -262,7 +263,7 @@ let get_field block idx =
   match block with
     | Value.Closure c when idx < 2*c.Value.nfuncs - 1 ->
         if idx mod 2 = 1 then
-          vm_error ("get_field closure "^string_of_int idx)
+          Vm.vm_error ("get_field closure "^string_of_int idx)
         else
           c.Value.funcs.(idx/2)
     | Value.Closure c -> c.Value.vars.(idx - 2*c.Value.nfuncs + 1)
@@ -276,7 +277,7 @@ let get_field block idx =
     | Value.Block b -> b.Value.data.(idx)
     | Value.Double_array a -> Value.Float a.(idx)
     | Value.String s -> Value.Int (int_of_char (String.get s idx))
-    | v -> vm_error ("can't get_field of "^(string_of_value v))  
+    | v -> Vm.vm_error ("can't get_field of "^(string_of_value v))  
 
 let offset block ofs =
   match block with
@@ -289,7 +290,7 @@ let offset block ofs =
 	get_field block ofs (* TODO verify *)
     | Value.Block b when b.Value.tag <> Value.Object_tag ->
 	get_field block ofs (* TODO verify *)
-    | _ -> vm_error "error offset" 
+    | _ -> Vm.vm_error "error offset" 
  
 let ult a b =
   if a >= 0 then
@@ -347,4 +348,4 @@ let create_callback vm orig_clos = match orig_clos with
       Vm.push vm' (Value.Code_pointer (code_size + 4));
       Vm.push vm' (value_of_obj (Obj.repr arg));
       Vm.run vm';
-  | _ -> vm_error "create_callback: Wrong argument"
+  | _ -> Vm.vm_error "create_callback: Wrong argument"
