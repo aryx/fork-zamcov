@@ -10,7 +10,7 @@ open Common
 (* Purpose *)
 (*****************************************************************************)
 (* 
- * todo: how avoid interpreter unknown flag and just pass them
+ * todo: how to avoid "interpret" unknown flags and just pass them
  * in Vm.args? Use Arg.Rest ?
  *)
 
@@ -29,7 +29,7 @@ let action = ref ""
 
 (*
  * The main loop of execution:
- * - reading of the different sections (CODE, DATA, DEBUG...) of the bytecode
+ * - reading the different sections (CODE, DATA, DEBUG...) of the bytecode
  * - interpretation of all the instructions of the CODE section
  *)
 let main_action file args =
@@ -42,14 +42,6 @@ let main_action file args =
   (* load the OCaml bytecode exe *)
   let data = Bytecode_loader.load_file file in
 
-  (* the CODE section of the exe *)
-  let code_section = data.Bytecode_loader.code_section in
-  (* the DATA section of the exe converted in a value type *)
-  let data_section = 
-    Conv_obj_value.value_of_obj data.Bytecode_loader.data_section in
-  (* the PRIM section of the exe *)
-  let primitive_section = data.Bytecode_loader.primitive_section in 
-
   (* initialisation of C primitives using the information of the DLLS section
    * of the exe *)
   Ffi.init data.Bytecode_loader.dlls_section;
@@ -60,15 +52,11 @@ let main_action file args =
   Vm.run 
     (Vm.init 
        "main" 
-       code_section 
-       data_section 
+       data.Bytecode_loader.code_section
+       (Conv_obj_value.value_of_obj data.Bytecode_loader.data_section)
        Interpreter.execute_step
-       (match !Plugin.plugin_list with
-       | [] -> (fun _ -> fun _ -> ())
-       | [p] -> p.Plugin.step
-       | _ -> Plugin.step
-       )
-       (Ffi.load primitive_section)
+       Plugin.step
+       (Ffi.load data.Bytecode_loader.primitive_section)
     );
 
   Plugin.finalise ();
