@@ -64,17 +64,17 @@ let not_yet_implemented : string -> unit = fun s ->
 (*****************************************************************************)
 
 let dump_state vm =
-  flush stdout;
-  Printf.printf
+  pr (spf
     "==============================\nextra_arguments : %d\naccumulator : %s\n
 \ncode_pointer : %d\nglobal_data length : %d\n\n==============================\n"
     (vm.Vm.extra_arguments)
     (Conv.string_of_value vm.Vm.accumulator)
     (vm.Vm.code_pointer)
     (match vm.Vm.global_data with 
-       | Value.Block b -> Array.length b.Value.data
-       | _ -> -1);
-  flush stdout
+    | Value.Block b -> Array.length b.Value.data
+    | _ -> -1
+    ))
+
  
 let dump_globals gb =
   print_string "globals : \n [ ";
@@ -87,8 +87,8 @@ let dump_globals gb =
 	  done;
       | v -> print_string (Conv.string_of_value v); print_string "; "
   in
-    aux gb;
-    print_string "]\n"
+  aux gb;
+  print_string "]\n"
 
 let print_block block =
   print_string "block : \n [ ";
@@ -116,8 +116,8 @@ let dump_env env =
 	  print_string " ] ";
       | v -> print_string (Conv.string_of_value v); print_string "; "
   in
-    aux env;
-    print_string "]\n"
+  aux env;
+  print_string "]\n"
 
 let dump_stack stack sp =
   print_string "stack : \n [ ";
@@ -131,10 +131,10 @@ let dump_stack stack sp =
 	  print_string " ]; ";
       | v -> print_string (Conv.string_of_value v); print_string "; "
   in
-    for i= sp to 1048574 do
-      aux stack.(i)
-    done;
-    print_string "]\n"
+  for i= sp to 1048574 do
+    aux stack.(i)
+  done;
+  print_string "]\n"
 
 (*****************************************************************************)
 (* Main entry point *)
