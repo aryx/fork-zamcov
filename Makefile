@@ -80,7 +80,7 @@ rec.opt:
 zamcov: $(LIBS) $(OBJS) main_zamcov.cmo
 	$(OCAMLC) -custom $(BYTECODE_STATIC) -o $@ $(SYSLIBS) $^
 zamcov.opt: $(LIBS:.cma=.cmxa) $(OBJS:.cmo=.cmx) main_zamcov.cmx
-	$(OCAMLOPT) $(STATIC) -o $@ $(SYSLIBS:.cma=.cmxa)  $^
+	$(OCAMLOPT) -linkall $(STATIC) -o $@ $(SYSLIBS:.cma=.cmxa)  $^
 zamcov.top: $(LIBS) $(OBJS) 
 	$(OCAMLMKTOP) -o $@ $(SYSLIBS) threads.cma $^
 
@@ -109,9 +109,9 @@ distclean:: clean
 #------------------------------------------------------------------------------
 
 zamcov_test: $(LIBS) $(OBJS) main_test.cmo
-	$(OCAMLC) $(BYTECODE_STATIC) -o $@ $(SYSLIBS) $^
+	$(OCAMLC) -custom $(BYTECODE_STATIC) -o $@ $(SYSLIBS) $^
 zamcov_test.opt: $(LIBS:.cma=.cmxa) $(OBJS:.cmo=.cmx) main_test.cmx
-	$(OCAMLOPT) $(STATIC) -o $@ $(SYSLIBS:.cma=.cmxa)  $^
+	$(OCAMLOPT) -linkall $(STATIC) -o $@ $(SYSLIBS:.cma=.cmxa)  $^
 clean::
 	rm -f zamcov_test zamcov_test.opt
 
