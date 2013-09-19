@@ -96,6 +96,42 @@ let caml_array_concat vm (xs: Value.value) =
                 Value.tag = Value.Structured_tag 0;
               }
 
+(*
+val blit : 'a array -> int -> 'a array -> int -> int -> unit
+(** [Array.blit v1 o1 v2 o2 len] copies [len] elements
+   from array [v1], starting at element number [o1], to array [v2],
+   starting at element number [o2]. It works correctly even if
+   [v1] and [v2] are the same array, and the source and
+   destination chunks overlap.
+
+   Raise [Invalid_argument "Array.blit"] if [o1] and [len] do not
+   designate a valid subarray of [v1], or if [o2] and [len] do not
+   designate a valid subarray of [v2]. 
+*)
+external unsafe_blit : 'a array -> int -> 'a array -> int -> int -> unit = "caml_array_blit" 
+*)
+
+let caml_array_blit vm varray1 voffset1 varray2 voffset2 vlen =
+  match varray1, voffset1, varray2, voffset2, vlen with
+  | Value.Block { Value.data = darr1; _ },
+    Value.Int offset1,
+    Value.Block { Value.data = darr2; _ },
+    Value.Int offset2,
+    Value.Int len
+      ->
+      Array.blit darr1 offset1 darr2 offset2 len;
+      Value.Int 0
+
+  | Value.Double_array arr1,
+    Value.Int offset1,
+    Value.Double_array arr2,
+    Value.Int offset2,
+    Value.Int len
+      -> raise Todo
+
+  | _ -> ccall_failwith "error caml_array_blit, not an array"
+
+
 (*****************************************************************************)
 (* Binding *)
 (*****************************************************************************)
@@ -120,6 +156,7 @@ let prims () =
 
   add1 "caml_make_array" caml_make_array;
   add1 "caml_array_concat" caml_array_concat;
+  add5 "caml_array_blit" caml_array_blit;
   ()
 
 
