@@ -30,6 +30,9 @@ let event_of_pc pc vm =
   match vm.Vm.debug.(pc) with
   | Some ev -> ev, false
   | None ->
+    (* less: too many None, better understand debug_event? look
+     * ocamldebug? find best ev like in backtrace.c?
+     *)
     let i = ref pc in
     while vm.Vm.debug.(!i) = None && !i >= 0 do
       i := !i - 1;
