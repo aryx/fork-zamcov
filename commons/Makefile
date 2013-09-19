@@ -32,7 +32,7 @@ $(TARGET).cma: $(OBJS) $(COBJS)
 	$(OCAMLMKLIB) -o lib $^
 
 $(TARGET).cmxa: $(OBJS:.cmo=.cmx) $(LIBS:.cma=.cmxa) $(COBJS)
-	$(OCAMLMKLIB) -o lib $@ $^
+	$(OCAMLMKLIB) -o lib $^
 
 realpath.o: realpath.c
 	$(OCAMLC) -c $^ -o $@
