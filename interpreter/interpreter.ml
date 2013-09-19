@@ -19,6 +19,8 @@ module Conv = Conv_obj_value
 exception EXIT_ON_STOP
 exception Exception_raised
 
+exception UncaughtException of string
+
 let rec string_of_global_data gb = 
   let s = ref "[| " in
   for i=0 to Array.length gb -1 do
@@ -34,7 +36,7 @@ let rec string_of_global_data gb =
 let raise_our_exception vm e = 
   match vm.Vm.caml_trap_pointer with
   | None -> 
-      Vm.fatal_error ("exception "^Conv.string_of_exception e)
+      raise (UncaughtException (Conv.string_of_exception e))
   | Some p ->
       vm.Vm.stack <- !p;
       vm.Vm.code_pointer <- Conv.get_code (Vm.pop vm);
@@ -1038,7 +1040,7 @@ let execute_step vm instruction =
   )
   with
   | Exception_raised -> ()
-  | (Vm.Fatal_error s | Vm.Vm_error s) as exn ->
+  | (Vm.Fatal_error _ | Vm.Vm_error _ | UncaughtException _) as exn ->
     Debug_events.print_backtrace vm;
     raise exn
   | e -> raise e
