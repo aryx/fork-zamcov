@@ -9,6 +9,7 @@ SRC= instructions.ml value.ml \
      utils.ml conv_obj_value.ml debug_events.ml \
      interpreter.ml \
      ffi.ml
+#less: split more? bytecode/, objects/?,  interpreter/, extensions/
 
 OCAMLCOMPILERDIR=$(shell ocamlc -where)/compiler-libs
 
