@@ -44,7 +44,7 @@ SRC2= \
 SRC=$(SRC1) $(SRC2)
 
 # for Ffi
-INCLUDEDIRS=$(TOP)/interpreter
+INCLUDEDIRS=$(TOP)/interpreter $(TOP)/commons
 
 ##############################################################################
 # Generic variables

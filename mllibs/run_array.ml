@@ -66,6 +66,10 @@ let caml_make_array vm arg =
           arg
   | _ -> ccall_failwith "error caml_make_array"
 
+(* external concat : 'a array list -> 'a array = "caml_array_concat" *)
+let caml_array_concat vm (xs: Value.value) =
+  raise Common.Todo
+
 let prims () =
   add2 "caml_array_get" caml_array_get;
   add2 "caml_array_get_addr" caml_array_get;
@@ -84,7 +88,10 @@ let prims () =
 
   add2 "caml_make_vect" caml_make_vect;
 
-  add1 "caml_make_array" caml_make_array
+  add1 "caml_make_array" caml_make_array;
+  add1 "caml_array_concat" caml_array_concat;
+  ()
+
 
 let initialize dlls_section =
   prims ()
