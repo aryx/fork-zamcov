@@ -1,7 +1,7 @@
-all: foo use_nat oo
+all: foo use_nat oo use_array
 #use_commons
 
-OCAMLC=ocamlc -g
+OCAMLC=ocamlc -g -annot
 ZAM=../zamcov
 
 foo: foo.ml
@@ -11,6 +11,9 @@ use_nat: use_nat.ml
 	$(OCAMLC) -o use_nat use_nat.ml nums.cma
 
 oo: oo.ml
+	$(OCAMLC) -o $@ $^
+
+use_array: use_array.ml
 	$(OCAMLC) -o $@ $^
 
 test:

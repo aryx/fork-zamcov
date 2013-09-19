@@ -53,3 +53,4 @@ clibs/otherlibs/*
 /tests/oo
 /zamcov.opt
 /zamcov_test.opt
+/tests/use_array
