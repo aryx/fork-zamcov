@@ -77,6 +77,7 @@ rec.opt:
 	set -e; for i in $(MAKESUBDIRS); do $(MAKE) -C $$i all.opt || exit 1; done 
 
 # -custom because commons/lib.cma now includes some C code
+# todo: -linkall does not work with ocamlopt :( can not get zamcov.opt to work
 zamcov: $(LIBS) $(OBJS) main_zamcov.cmo
 	$(OCAMLC) -custom $(BYTECODE_STATIC) -o $@ $(SYSLIBS) $^
 zamcov.opt: $(LIBS:.cma=.cmxa) $(OBJS:.cmo=.cmx) main_zamcov.cmx
