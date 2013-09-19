@@ -83,7 +83,7 @@ let location_of_pc pc vm =
 
 let print_backtrace vm =
   let pc = vm.Vm.code_pointer in
-  pr (location_of_pc pc vm);
+  pr2 (location_of_pc pc vm);
   vm.Vm.stack +> List.iter (fun v ->
     match v with
     | Value.Code_pointer _ 
@@ -91,7 +91,7 @@ let print_backtrace vm =
     | Value.Infix _
         ->
       let pc = Conv_obj_value.get_code v in
-      pr (location_of_pc pc vm);
+      pr2 (location_of_pc pc vm);
     | _ -> ()
   )
 

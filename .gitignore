@@ -51,3 +51,5 @@ clibs/otherlibs/*
 /clibs/runtime_weak.ml
 /tests/use_commons
 /tests/oo
+/zamcov.opt
+/zamcov_test.opt
