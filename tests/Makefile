@@ -1,4 +1,5 @@
-all: foo use_nat oo use_array
+PROGS=foo use_nat use_oo use_array
+all: $(PROGS)
 #use_commons
 
 OCAMLC=ocamlc -g -annot
@@ -10,7 +11,7 @@ foo: foo.ml
 use_nat: use_nat.ml
 	$(OCAMLC) -o use_nat use_nat.ml nums.cma
 
-oo: oo.ml
+use_oo: use_oo.ml
 	$(OCAMLC) -o $@ $^
 
 use_array: use_array.ml
@@ -24,7 +25,7 @@ test2:
 
 clean:
 	rm -f *.cm*
-	rm -f foo use_nat
+	rm -f $(PROGS)
 
 .PHONY: use_commons
 
