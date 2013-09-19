@@ -83,7 +83,7 @@ $(TARGET).cmxa: $(OPTOBJS) $(LIBS:.cma=.cmxa)
 # Adhoc rules
 ##############################################################################
 
-runtime_%.ml: %.c
+runtime_%.ml: %.c runtime
 	perl parseC.pl $*.c > $@
 
 %.c:

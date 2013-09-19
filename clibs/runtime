@@ -16,6 +16,7 @@ caml_array_unsafe_get_float
 caml_array_unsafe_set
 caml_array_unsafe_set_addr
 caml_array_unsafe_set_float
+caml_array_append
 caml_asin_float
 caml_atan2_float
 caml_atan_float
