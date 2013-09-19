@@ -1045,7 +1045,7 @@ let execute_step vm instruction =
   | Exception_raised -> ()
   | (Vm.Fatal_error _ | Vm.Vm_error _ | UncaughtException _) as exn ->
     pr (spf "Last instr = %s"
-          (Instructions.string_of_instructions [||] instruction));
+          (Instructions.string_of_instructions vm.Vm.prims instruction));
 
     Debug_events.print_backtrace vm;
     raise exn

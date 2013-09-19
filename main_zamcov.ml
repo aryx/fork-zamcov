@@ -49,6 +49,7 @@ let init_exec s =
                  (Debug_events.parse_debug_section 
                     (Array.length code_section)
                     data.Bytecode_loader.debug_section)
+                 data.Bytecode_loader.primitive_section
   );
 
   Plugin.finalise ();

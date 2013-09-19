@@ -1,18 +1,26 @@
 
 type virtual_machine = {
-  name : string;
   code : Instructions.instruction array;
-  mutable extra_arguments : int;
-  mutable environment : Value.value;
-  mutable accumulator : Value.value;
-  mutable stack : Value.value list;
+
   mutable code_pointer : int;
-  mutable caml_trap_pointer : Value.value list ref option;
+  mutable accumulator : Value.value;
+  mutable environment : Value.value;
+  mutable extra_arguments : int;
+
+  mutable stack : Value.value list;
   global_data : Value.value;
+
+  mutable caml_trap_pointer : Value.value list ref option;
+
   plugin_step : virtual_machine -> Instructions.instruction -> unit;
   execute_step : virtual_machine -> Instructions.instruction -> unit;
+
   prim_table : prim_table;
+
   debug: Instruct.debug_event option array;
+  prims: string array;
+
+  name : string;
 }
 
 and prim_table = {
@@ -59,6 +67,7 @@ val init :
   (virtual_machine -> Instructions.instruction -> unit) ->
   prim_table -> 
   Instruct.debug_event option array ->
+  string array ->
   virtual_machine
 
 val copy :

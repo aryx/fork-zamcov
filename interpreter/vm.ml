@@ -14,19 +14,32 @@
 (*****************************************************************************)
 
 type virtual_machine = {
-  name : string;
   code : Instructions.instruction array;
-  mutable extra_arguments : int;
-  mutable environment : Value.value;
-  mutable accumulator : Value.value;
-  mutable stack : Value.value list;
+
   mutable code_pointer : int;
-  mutable caml_trap_pointer : Value.value list ref option;
+  mutable accumulator : Value.value;
+  mutable environment : Value.value;
+  mutable extra_arguments : int;
+
+  mutable stack : Value.value list;
   global_data : Value.value;
+
+  mutable caml_trap_pointer : Value.value list ref option;
+
   plugin_step : virtual_machine -> Instructions.instruction -> unit;
   execute_step : virtual_machine -> Instructions.instruction -> unit;
+
   prim_table : prim_table;
+
   debug: Instruct.debug_event option array;
+  (* for string_of_instruction *)
+  prims: string array;
+
+  (* can be useful to debug, to know in which vm we are currently (the 
+   * initial one is called 'main' in main_zamcov.ml) as we create different
+   * vms in Conv.create_callback
+   *)
+  name : string;
 }
   and prim_table = {
     tbl1 : (virtual_machine -> Value.value -> Value.value) array;
@@ -88,7 +101,7 @@ let run vm =
       vm.execute_step vm instruction;
   done
 
-let init name code global execute_step plugin_step prim_table debug = {
+let init name code global execute_step plugin_step prim_table debug prims = {
   name = name;
   code = code;
 
@@ -104,7 +117,8 @@ let init name code global execute_step plugin_step prim_table debug = {
   plugin_step = plugin_step;
   execute_step = execute_step;
   prim_table = prim_table;
-  debug;
+  debug; 
+  prims;
 }
 
 let copy vm name code = { vm with

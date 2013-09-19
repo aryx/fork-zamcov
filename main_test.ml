@@ -60,6 +60,7 @@ let main_action file args =
        (Debug_events.parse_debug_section 
           (Array.length data.Bytecode_loader.code_section)
           data.Bytecode_loader.debug_section)
+       data.Bytecode_loader.primitive_section
     );
 
   Plugin.finalise ();
