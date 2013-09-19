@@ -10,7 +10,9 @@ module Conv = Conv_obj_value
 open Ffi
 
 let caml_sys_exit vm = function
-  | Value.Int code -> vm.Vm.code_pointer <- Array.length vm.Vm.code + 1; Value.Int 0 (* TODO return the right exit code *)
+  | Value.Int code -> 
+    vm.Vm.code_pointer <- Array.length vm.Vm.code + 1; 
+    Value.Int 0 (* TODO return the right exit code *)
   | _ -> ccall_failwith "error sys_exit"
 
 let caml_sys_get_argv vm = function _ ->

@@ -34,7 +34,8 @@ let caml_array_unsafe_set vm a i v =
   Value.Int 0
 
 (* TODO review & test *)
-let caml_make_vect vm arg1 init = match (arg1, init) with
+let caml_make_vect vm arg1 init = 
+  match (arg1, init) with
   | Value.Int len, Value.Float _ ->
       Value.Double_array (Array.make len (Conv.unbox_float init))
   | Value.Int len, _ ->
@@ -45,7 +46,8 @@ let caml_make_vect vm arg1 init = match (arg1, init) with
   | _ -> ccall_failwith "error caml_make_vect"
 
 (* TODO review & test *)
-let caml_make_array vm arg = match arg with
+let caml_make_array vm arg = 
+  match arg with
   | Value.Block block ->
       let size = Conv.block_size arg in
       let v = Conv.get_field arg 0 in

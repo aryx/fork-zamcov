@@ -82,6 +82,7 @@ let load primitive_section =
   } in
   for i = 0 to n - 1 do
     let s = primitive_section.(i) in
+    (* todo: detect if is not present in any table *)
     res.Vm.tbl1.(i) <- (try Hashtbl.find tbl1 s with Not_found -> unavailable1 s);
     res.Vm.tbl2.(i) <- (try Hashtbl.find tbl2 s with Not_found -> unavailable2 s);
     res.Vm.tbl3.(i) <- (try Hashtbl.find tbl3 s with Not_found -> unavailable3 s);
