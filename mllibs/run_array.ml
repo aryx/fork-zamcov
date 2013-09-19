@@ -97,6 +97,15 @@ let caml_array_concat vm (xs: Value.value) =
               }
 
 (*
+val append : 'a array -> 'a array -> 'a array
+(** [Array.append v1 v2] returns a fresh array containing the
+   concatenation of the arrays [v1] and [v2]. *)
+external append_prim : 'a array -> 'a array -> 'a array = "caml_array_append"
+*)
+let _caml_array_append vm varra1 varray2 =
+  raise Todo
+
+(*
 val blit : 'a array -> int -> 'a array -> int -> int -> unit
 (** [Array.blit v1 o1 v2 o2 len] copies [len] elements
    from array [v1], starting at element number [o1], to array [v2],
