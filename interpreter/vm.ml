@@ -13,15 +13,7 @@
 (* Types *)
 (*****************************************************************************)
 
-type prim_table = {
-  tbl1 : (virtual_machine -> Value.value -> Value.value) array;
-  tbl2 : (virtual_machine -> Value.value -> Value.value -> Value.value) array;
-  tbl3 : (virtual_machine -> Value.value -> Value.value -> Value.value -> Value.value) array;
-  tbl4 : (virtual_machine -> Value.value -> Value.value -> Value.value -> Value.value -> Value.value) array;
-  tbl5 : (virtual_machine -> Value.value -> Value.value -> Value.value -> Value.value -> Value.value -> Value.value) array;
-  tbln : (virtual_machine -> Value.value array -> int -> Value.value) array;
-}
-and virtual_machine = {
+type virtual_machine = {
   name : string;
   code : Instructions.instruction array;
   mutable extra_arguments : int;
@@ -36,6 +28,14 @@ and virtual_machine = {
   prim_table : prim_table;
   debug: Instruct.debug_event option array;
 }
+  and prim_table = {
+    tbl1 : (virtual_machine -> Value.value -> Value.value) array;
+    tbl2 : (virtual_machine -> Value.value -> Value.value -> Value.value) array;
+    tbl3 : (virtual_machine -> Value.value -> Value.value -> Value.value -> Value.value) array;
+    tbl4 : (virtual_machine -> Value.value -> Value.value -> Value.value -> Value.value -> Value.value) array;
+    tbl5 : (virtual_machine -> Value.value -> Value.value -> Value.value -> Value.value -> Value.value -> Value.value) array;
+    tbln : (virtual_machine -> Value.value array -> int -> Value.value) array;
+  }
 
 (* size of the stack of the execution enviornment *)
 let stack_size = 1024*512*2
