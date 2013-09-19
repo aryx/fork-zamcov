@@ -5,9 +5,17 @@
 (* authors: Adrien Jonquet, Philippe Wang, Alexis Darrasse             *)
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
-
-module Conv = Conv_obj_value
+open Common
 open Ffi
+module Conv = Conv_obj_value
+
+(*****************************************************************************)
+(* Prelude *)
+(*****************************************************************************)
+
+(*****************************************************************************)
+(* Builtins *)
+(*****************************************************************************)
 
 let caml_array_get vm a ind =
   let i = Conv.int_of_value ind in
@@ -68,7 +76,29 @@ let caml_make_array vm arg =
 
 (* external concat : 'a array list -> 'a array = "caml_array_concat" *)
 let caml_array_concat vm (xs: Value.value) =
-  raise Common.Todo
+  let rec get_value_arrays_in_value_list xs =
+    match xs with
+    | Value.Int 0 -> []
+    | Value.Block { Value.tag = Value.Structured_tag 0; 
+                    Value.data = [|hd; tl|] } ->
+      hd :: get_value_arrays_in_value_list tl
+    | _ -> ccall_failwith "error caml_array_concat, not a list"
+  in
+  let values = get_value_arrays_in_value_list xs in
+  
+  let data_arrays = values +> List.map (function
+    | Value.Block { Value.data = x; _ } -> x
+    | Value.Double_array _ -> raise Todo
+    | _ -> ccall_failwith "error caml_array_concat, not an array"
+  )
+  in
+  Value.Block { Value.data = Array.concat data_arrays;
+                Value.tag = Value.Structured_tag 0;
+              }
+
+(*****************************************************************************)
+(* Binding *)
+(*****************************************************************************)
 
 let prims () =
   add2 "caml_array_get" caml_array_get;
