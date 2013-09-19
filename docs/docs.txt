@@ -2,7 +2,7 @@
 
 * Bytecode format
 
-For the bytecode format, we basically need to reverse engineer what
+For the bytecode format we basically need to reverse engineer what
 was done in: 
  - bytecomp/emitcode.ml (cmo)
  - bytecomp/bytelibrarian.ml (cma)
@@ -13,16 +13,21 @@ See also bytecomp/cmo_format.mli
 * FFI
 
 How to call C code? We can't interpret C code ...
-The C code needs to be linked with zamcov-run so we just
+The C code needs to be linked with zamcov so then we just
 need to find the address of this code and jump there.
 How to jump there? We can abuse the 'external' mechanism of 
-ocaml itself for that :)
+OCaml itself for that :)
 
-But then this C code assumes the ocaml C value runtime
+But then this C code assumes the OCaml C value runtime
 representation, not the special one we use in value.ml.
 So we need to convert back and forth, hence the Ffi.wrap
 to go from Value.value to Obj.t (Ffi.obj_of_value), and then get the
-result back in a Value.value (Utils.value_of_obj)
+result back in a Value.value (Utils.value_of_obj).
+
+Note that this last conversion works for everything except closures,
+so if you have to pass something that contains a closure (e.g.
+a list of array of closures), then this will fail. In that
+case you need to redefine in mlllibs/ such builtin.
 
 ** What is clibs for?
 Just to create all the external declarations from the ocaml
@@ -30,31 +35,29 @@ standard libraries and otherlibs and the redirect and wrappers
 so that they can work on Value.
 
 ** What is mllibs for?
+Some functions in the stdlib do weird things around values
+(compare, callback, obj) and because we use our own value representation,
+we we need to imitate that. We also need to reimplement
+builtins in OCaml when we pass closures to builtins, see the note above.
 
-Because some functions in the stdlib do weird things around values
-(compare, callback, obj) and we need to imitate that because we have
-our own value representation.
-
-* interpreter
+* Interpreter
 
 ** value
 Value.value vs Obj.t
 
-** GC?
+** GC
 How it works? We just use the ocaml GC itself that will work on Value.value.
-Just like a lisp interpreter written in LISP just use implicitly
-the Lisp GC.
+Just like a lisp interpreter written in LISP uses implicitly the Lisp GC.
 
-There should never be calls to the C functions from the GC??
+* Bytecode <-> source code
 
-* Link to source code
-
-How the original zamcov links bytecode to source code?
-Apparently they assume a .cmo.cover and so a patched version of
-the compiler. I don't want that, I think with compiler-libs we have
+How the original zamcov linked bytecode to source code?
+Apparently they assumed a .cmo.cover and so a patched version of
+the compiler. I don't want that. With compiler-libs we have
 enough info to find back the functions involved!
 
 * Related
 
-O'Browser, interpreter bytecode, but written in Javascript.
-Cadmium, interpreter bytecode, but written in Java.
+- O'Browser, interpret bytecode, but written in Javascript.
+- Cadmium, interpret bytecode, but written in Java.
+
