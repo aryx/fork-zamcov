@@ -113,7 +113,7 @@ let parse_debug_section raw_debug_section =
   Common.write_file ~file:tmpfile raw_debug_section;
   let chan = open_in tmpfile in
   let n = input_binary_int chan in
-  pr2 (spf "%d" n);
+(*  pr2 (spf "%d" n); *)
   let res = ref [] in
   for i = 0 to n - 1 do
     let ofs = input_binary_int chan in
