@@ -91,7 +91,9 @@ let finalise () =
   if !debug 
   then close_out !debug_c
 
+(*
 let _ =
   Plugin.register_plugin init step finalise
     ("-debug", Arg.String (fun s -> debug := true; name := s),
      "file  print debug statements in file")
+*)
