@@ -10,13 +10,13 @@ open Common
 (*****************************************************************************)
 (* Prelude *)
 (*****************************************************************************)
-
-(* This module allows the reading of the executable file.
+(* 
+ * This module allows the reading of the executable file.
  * Mostly the reverse of bytecomp/Bytelink.link_bytecode
  *)
 
 (*****************************************************************************)
-(* Helpers *)
+(* Types *)
 (*****************************************************************************)
 
 (* module StringSet = Set.Make(String) *)
@@ -33,6 +33,21 @@ module StringList = struct
   let to_array l = Array.of_list l
 end
 module StringSet = StringList
+
+type sections = {
+  name : string;
+  code_section : Instructions.instruction array;
+  data_section : Obj.t;
+  primitive_section : string array;
+  dlls_section : StringSet.t;
+  dlpt_section : StringSet.t;
+  debug_section : (int * Instruct.debug_event list) list;
+  crcs_section : (string * Digest.t) list;
+}
+
+(*****************************************************************************)
+(* Helpers *)
+(*****************************************************************************)
 
 (*****************************************************************************)
 (* Code *)
@@ -87,16 +102,6 @@ let string_of_section = function
   | SYMB -> "SYMB"
   | CRCS -> "CRCS"
 
-type sections = {
-  name : string;
-  code_section : Instructions.instruction array;
-  data_section : Obj.t;
-  primitive_section : string array;
-  dlls_section : StringSet.t;
-  dlpt_section : StringSet.t;
-  debug_section : (int * Instruct.debug_event list) list;
-  crcs_section : (string * Digest.t) list;
-}
 
 let cut_zero_terminated_strings s =
   let res = ref StringSet.empty in
