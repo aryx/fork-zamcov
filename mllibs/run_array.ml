@@ -140,7 +140,6 @@ let caml_array_blit vm varray1 voffset1 varray2 voffset2 vlen =
 
   | _ -> ccall_failwith "error caml_array_blit, not an array"
 
-
 (*****************************************************************************)
 (* Binding *)
 (*****************************************************************************)

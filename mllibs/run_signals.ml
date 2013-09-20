@@ -5,9 +5,18 @@
 (* authors: Alexis Darrasse                                            *)
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
+open Common
 
 module Conv = Conv_obj_value
 open Ffi
+
+(*****************************************************************************)
+(* Prelude *)
+(*****************************************************************************)
+
+(*****************************************************************************)
+(* Builtins *)
+(*****************************************************************************)
 
 let caml_install_signal_handler vm arg1 arg2 =
   let res = match (arg1, arg2) with
@@ -20,7 +29,13 @@ let caml_install_signal_handler vm arg1 arg2 =
   match res with
   | Sys.Signal_default -> Value.Int 0
   | Sys.Signal_ignore -> Value.Int 1
-  | Sys.Signal_handle f -> print_endline "## TODO signal"; Value.Int 0
+  | Sys.Signal_handle f -> 
+    pr2_once "## TODO signal";
+    Value.Int 0
+
+(*****************************************************************************)
+(* Binding *)
+(*****************************************************************************)
 
 let prims () =
   add2 "caml_install_signal_handler" caml_install_signal_handler

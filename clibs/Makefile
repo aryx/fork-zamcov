@@ -1,6 +1,6 @@
 TOP=..
 
-# for ocaml version
+# for $(OCAMLVERSION)
 -include $(TOP)/Makefile.config
 
 ##############################################################################
@@ -10,12 +10,13 @@ TARGET=lib
 
 SRC1= \
  other_bigarray.ml \
- other_nums.ml \
+ other_num.ml \
  other_str.ml \
  other_unix.ml \
- other_threads.ml \
+ other_systhreads.ml \
 
 # other_graphics.ml \
+# other_dbm.ml \
 
 SRC2= \
  runtime_alloc.ml \
@@ -44,8 +45,6 @@ SRC2= \
  runtime_terminfo.ml \
  runtime_weak.ml \
 
-# other_dbm.ml \
-
 # for Ffi
 INCLUDEDIRS=$(TOP)/interpreter $(TOP)/commons
 
@@ -65,7 +64,7 @@ SRC=$(SRC1) $(SRC2) extra.ml
 ##############################################################################
 
 # need that otherwise get some 'tar  ... all.c'
-.PHONY:: all all.opt
+.PHONY:: all all.opt depend .depend
 
 all:: $(TARGET).cma
 all.opt:: $(TARGET).cmxa
@@ -78,31 +77,28 @@ $(TARGET).cma: $(OBJS)
 $(TARGET).cmxa: $(OPTOBJS) $(LIBS:.cma=.cmxa)
 	$(OCAMLOPT) -linkall -a -o $(TARGET).cmxa $(OPTOBJS)
 
-
 ##############################################################################
 # Adhoc rules
 ##############################################################################
 
+# byterun stdlib
 runtime_%.ml: %.c runtime
 	perl parseC.pl $*.c > $@
 
 %.c:
 	tar --strip-components=2 -zxf ../$(OCAMLTAR) ocaml-$(OCAMLVERSION)/byterun/$*.c
 
-other_unix.ml: otherlibs/unix unix
-other_nums.ml: otherlibs/num num
-other_str.ml: otherlibs/str str
-other_threads.ml: otherlibs/systhreads systhreads
-other_graphics.ml: otherlibs/graph graph
-other_dbm.ml: otherlibs/dbm dbm
-other_bigarray.ml: otherlibs/bigarray bigarray
-
-otherlibs/%: ../$(OCAMLTAR)
-	tar --strip-components=1 -zxf $< ocaml-$(OCAMLVERSION)/otherlibs/$*
-
-other_%.ml:
+# otherlibs
+other_%.ml: big/% %
 	perl parseML.pl $(notdir $<) $* $</*.ml > $@
+	rm -rf big/$*
+
+big/%: ../$(OCAMLTAR)
+	rm -rf big/$*
+	tar --strip-components=1 -zxf $< ocaml-$(OCAMLVERSION)/otherlibs/$*
+	mkdir -p big
+	mv otherlibs/$* big/
 
 distclean::
-	rm -rf runtime_* other_* *.c otherlibs
+	rm -rf runtime_* other_* *.c otherlibs big/*
 
