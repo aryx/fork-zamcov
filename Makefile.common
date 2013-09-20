@@ -20,6 +20,7 @@
 
 INCLUDES?=$(INCLUDEDIRS:%=-I %) $(SYSINCLUDES)
 OBJS?=    $(SRC:.ml=.cmo)
+OPTOBJS?= $(SRC:.ml=.cmx)
 
 ##############################################################################
 # Generic ocaml variables
