@@ -35,18 +35,14 @@ foreach $name (keys %funcs) {
 }
 
 print "\nlet prims () =\n";
-$fst = 1;
 foreach $name (keys %funcs) {
   if ($funcs{$name} != -1) {
     $nargs = $funcs{$name};
-    if ($fst == 1) {
-      $fst = 0;
-    } else {
-      print ";\n";
-    }
-    print "  Ffi.add$nargs \"$name\" (Ffi.warp$nargs ext_$name)";
+    print "  Ffi.add$nargs \"$name\" (Ffi.warp$nargs ext_$name);";
   }
 }
+print "  ()\n";
+
 print "\n\nlet init dlls_section =\n";
 print "  prims ()\n;;\n";
 print "Ffi.init_list := init::!Ffi.init_list\n";
