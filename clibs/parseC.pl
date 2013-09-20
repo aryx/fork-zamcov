@@ -38,7 +38,7 @@ print "\nlet prims () =\n";
 foreach $name (keys %funcs) {
   if ($funcs{$name} != -1) {
     $nargs = $funcs{$name};
-    print "  Ffi.add$nargs \"$name\" (Ffi.warp$nargs ext_$name);";
+    print "  Ffi.add$nargs \"$name\" (Ffi.warp$nargs ext_$name);\n";
   }
 }
 print "  ()\n";
