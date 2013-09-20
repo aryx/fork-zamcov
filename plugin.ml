@@ -1,12 +1,17 @@
 (***********************************************************************)
 (*                              Project Couverture                     *)
 (*                                                                     *)
-(* file: pluginRun.ml                                                  *)
 (* authors: Adrien Jonquet, Philippe Wang, Alexis Darrasse             *)
 (* licence: CeCIL-B                                                    *)
 (***********************************************************************)
 
-(* Plugin run interface *)
+(*****************************************************************************)
+(* Prelude *)
+(*****************************************************************************)
+
+(*****************************************************************************)
+(* Types and globals *)
+(*****************************************************************************)
 
 type plugin = {
   init: Bytecode_loader.sections -> unit;
@@ -17,6 +22,10 @@ type plugin = {
 
 let plugin_list = ref ([]: plugin list)
 
+(*****************************************************************************)
+(* API *)
+(*****************************************************************************)
+
 let register_plugin init step finalise cmd_args =
   plugin_list := {
     init = init;
@@ -25,7 +34,11 @@ let register_plugin init step finalise cmd_args =
     cmd_args = cmd_args
   }::!plugin_list
 
-let init data = List.iter (fun p -> p.init data) !plugin_list
-let step vm instruction = List.iter (fun p -> p.step vm instruction) !plugin_list
-let finalise () = List.iter (fun p -> p.finalise ()) !plugin_list
-let cmd_args () = List.map (fun p -> p.cmd_args) !plugin_list
+let init data = 
+  List.iter (fun p -> p.init data) !plugin_list
+let step vm instruction = 
+  List.iter (fun p -> p.step vm instruction) !plugin_list
+let finalise () = 
+  List.iter (fun p -> p.finalise ()) !plugin_list
+let cmd_args () = 
+  List.map (fun p -> p.cmd_args) !plugin_list

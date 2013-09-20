@@ -18,7 +18,6 @@ module Conv = Conv_obj_value
 (*****************************************************************************)
 
 (* TODO different instances of the VM should not write in the same file *)
-
 let debug = ref false
 let name = ref ""
 let debug_c = ref stdout
@@ -91,9 +90,7 @@ let finalise () =
   if !debug 
   then close_out !debug_c
 
-(*
 let _ =
   Plugin.register_plugin init step finalise
     ("-debug", Arg.String (fun s -> debug := true; name := s),
      "file  print debug statements in file")
-*)
