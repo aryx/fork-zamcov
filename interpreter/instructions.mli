@@ -12,6 +12,7 @@ type instruction =
   | ACC6
   | ACC7
   | ACC of int
+
   | PUSH
   | PUSHACC0
   | PUSHACC1
@@ -22,28 +23,36 @@ type instruction =
   | PUSHACC6
   | PUSHACC7
   | PUSHACC of int
+
   | POP of int
   | ASSIGN of int
+
   | ENVACC1
   | ENVACC2
   | ENVACC3
   | ENVACC4
   | ENVACC of int
+
   | PUSHENVACC1
   | PUSHENVACC2
   | PUSHENVACC3
   | PUSHENVACC4
   | PUSHENVACC of int
+
   | PUSH_RETADDR of int
+
   | APPLY of int
   | APPLY1
   | APPLY2
   | APPLY3
+
   | APPTERM of int * int
   | APPTERM1 of int
   | APPTERM2 of int
   | APPTERM3 of int
+
   | RETURN of int
+
   | RESTART
   | GRAB of int
   | CLOSURE of int * int
@@ -96,12 +105,14 @@ type instruction =
   | POPTRAP
   | RAISE
   | CHECK_SIGNALS
+
   | C_CALL1 of int
   | C_CALL2 of int
   | C_CALL3 of int
   | C_CALL4 of int
   | C_CALL5 of int
   | C_CALLN of int * int
+
   | CONST0
   | CONST1
   | CONST2
