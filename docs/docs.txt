@@ -61,3 +61,12 @@ enough info to find back the functions involved!
 - O'Browser, interpret bytecode, but written in Javascript.
 - Cadmium, interpret bytecode, but written in Java.
 
+* Bench
+
+** pfff_test all
+
+ocamlrun: 8s
+ocamlopt: 7.53s
+
+zamcov: 58s
+zamcov.opt: 16s
