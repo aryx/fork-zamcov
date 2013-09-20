@@ -36,7 +36,6 @@ caml_dynlink_close_lib
 caml_dynlink_get_current_libs
 caml_dynlink_lookup_symbol
 caml_dynlink_open_lib
-caml_ensure_stack_capacity
 caml_eq_float
 caml_equal
 caml_exp_float
@@ -62,7 +61,6 @@ caml_gc_quick_stat
 caml_gc_set
 caml_gc_stat
 caml_ge_float
-caml_get_current_environment
 caml_get_exception_backtrace
 caml_get_global_data
 caml_get_public_method
