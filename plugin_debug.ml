@@ -40,7 +40,6 @@ let step vm instruction =
     (* Interpreter.dump_state vm; *)
     (* Interpreter.dump_env vm.environment; *)
     (* Interpreter.dump_stack vm.stack vm.stack_pointer; *)
-  end;
   (match instruction with
   | I.C_CALL1 _
   | I.C_CALL2 _
@@ -80,13 +79,14 @@ let step vm instruction =
     ()
   | _ -> ()
   )
+  end
   
 
 let init data =
   prims := data.Bytecode_loader.primitive_section;
   if !debug then debug_c := open_out !name
 
-let finalise () = 
+let finalise _vm = 
   if !debug 
   then close_out !debug_c
 

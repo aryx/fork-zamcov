@@ -3,6 +3,7 @@ class test =
 object(o)
   val data = 0
   method get = data
+  method not_executed = data
 end
 
 let test () =
@@ -22,6 +23,9 @@ class test2 =
   val data2 = 1
   method get2 = data2
   end
+
+let not_executed () =
+  1
 
 let test2 () =
   let x = new test2 in

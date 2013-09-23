@@ -39,20 +39,24 @@ let init_exec s =
   (* the size in byte of the bytecode *)
   Plugin.init data;
 
-  (* initialisation of the virtual machine environment *)
-  Vm.run (Vm.init "main" code_section data_section Interpreter.execute_step
-                 (match !Plugin.plugin_list with
-                   | [] -> (fun _ -> fun _ -> ())
-                   | [p] -> p.Plugin.step
-                   | _ -> Plugin.step)
-                 (Ffi.load primitive_section)
-                 (Debug_events.parse_debug_section 
-                    (Array.length code_section)
-                    data.Bytecode_loader.debug_section)
-                 data.Bytecode_loader.primitive_section
+  let vm = 
+    Vm.init "main" code_section data_section Interpreter.execute_step
+      (match !Plugin.plugin_list with
+      | [] -> (fun _ -> fun _ -> ())
+      | [p] -> p.Plugin.step
+      | _ -> Plugin.step)
+      (Ffi.load primitive_section)
+      (Debug_events.parse_debug_section 
+         (Array.length code_section)
+         data.Bytecode_loader.debug_section)
+      data.Bytecode_loader.primitive_section
+  in
+  Common.finalize (fun () ->
+    (* initialisation of the virtual machine environment *)
+    Vm.run vm;
+  ) (fun () ->
+    Plugin.finalise vm;
   );
-
-  Plugin.finalise ();
   exit 0
 
 let _ =

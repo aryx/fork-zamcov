@@ -49,21 +49,22 @@ let main_action file args =
   Plugin.init data;
 
   (* initialisation of the virtual machine environment *)
-  Vm.run 
-    (Vm.init 
-       "main" 
-       data.Bytecode_loader.code_section
-       (Conv_obj_value.value_of_obj data.Bytecode_loader.data_section)
-       Interpreter.execute_step
-       Plugin.step
-       (Ffi.load data.Bytecode_loader.primitive_section)
-       (Debug_events.parse_debug_section 
-          (Array.length data.Bytecode_loader.code_section)
-          data.Bytecode_loader.debug_section)
-       data.Bytecode_loader.primitive_section
-    );
+  let vm =
+    Vm.init 
+      "main" 
+      data.Bytecode_loader.code_section
+      (Conv_obj_value.value_of_obj data.Bytecode_loader.data_section)
+      Interpreter.execute_step
+      Plugin.step
+      (Ffi.load data.Bytecode_loader.primitive_section)
+      (Debug_events.parse_debug_section 
+         (Array.length data.Bytecode_loader.code_section)
+         data.Bytecode_loader.debug_section)
+      data.Bytecode_loader.primitive_section
+  in
+  Vm.run vm;
 
-  Plugin.finalise ();
+  Plugin.finalise vm;
   exit 0
     
 (*****************************************************************************)

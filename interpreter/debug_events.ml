@@ -34,7 +34,7 @@ let event_of_pc pc vm =
      * ocamldebug? find best ev like in backtrace.c?
      *)
     let i = ref pc in
-    while vm.Vm.debug.(!i) = None && !i >= 0 do
+    while !i >= 0 && vm.Vm.debug.(!i) = None do
       i := !i - 1;
     done;
     if !i < 0
