@@ -1,4 +1,4 @@
-PROGS=foo use_nat use_oo use_array
+PROGS=foo use_nat     use_oo use_array use_ref
 all: $(PROGS)
 #use_commons
 
@@ -15,6 +15,9 @@ use_oo: use_oo.ml
 	$(OCAMLC) -o $@ $^
 
 use_array: use_array.ml
+	$(OCAMLC) -o $@ $^
+
+use_ref: use_ref.ml
 	$(OCAMLC) -o $@ $^
 
 test:

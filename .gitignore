@@ -55,3 +55,4 @@ clibs/otherlibs/*
 /zamcov_test.opt
 /tests/use_array
 /tests/use_oo
+/tests/use_ref
